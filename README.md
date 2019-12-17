@@ -1,6 +1,6 @@
 # improved-funicular
 
-Python 3 implementation of the [2048 game](https://play2048.co/)
+Python 3 implementation of the [2048 game](https://play2048.co/).
 
 # Setup
 
