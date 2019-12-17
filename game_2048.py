@@ -25,22 +25,26 @@ class Game2048:
         return self.board
 
     def reset(self):
-        self.board = [None] * 16
+        self.board = [0] * 16
         self._set_random_position(2)
         self._set_random_position(2)
 
     def render_board(self):
-        p = ["·" if x is None else x for x in self.board]
+        board_max = max(self.board)
+
+        def j(el):
+            return str(el).rjust(5)
+
+        p = ["·" if x == 0 else x for x in self.board]
         print(
-            f"{p[0]} {p[1]} {p[2]} {p[3]}\n"
-            f"{p[4]} {p[5]} {p[6]} {p[7]}\n"
-            f"{p[8]} {p[9]} {p[10]} {p[11]}\n"
-            f"{p[12]} {p[13]} {p[14]} {p[15]}\n\n"
+            f"{j(p[0])} {j(p[1])} {j(p[2])} {j(p[3])}\n"
+            f"{j(p[4])} {j(p[5])} {j(p[6])} {j(p[7])}\n"
+            f"{j(p[8])} {j(p[9])} {j(p[10])} {j(p[11])}\n"
+            f"{j(p[12])} {j(p[13])} {j(p[14])} {j(p[15])}\n\n"
         )
 
     def run_manual_loop(self):
         game.render_board()
-
         moves = {
             "w": Game2048.UP,
             "A": Game2048.UP,
@@ -64,12 +68,13 @@ class Game2048:
                 continue
             should_print = True
             game.step(moves[move])
+            print()
             game.render_board()
 
     def _set_random_position(self, value):
-        idxs = [i for i, val in enumerate(self.board) if val is None]
+        idxs = [i for i, val in enumerate(self.board) if val == 0]
         if not idxs:
-            return None
+            return 0
         idx = random.choice(idxs)
         self.board[idx] = value
         return idx
@@ -104,7 +109,7 @@ class Game2048:
             self.board[i] = smushed.pop(0)
 
     def _smush_left(self, col):
-        new_col = [v for v in col if v is not None]
+        new_col = [v for v in col if v != 0]
         i = 0
         while i < len(new_col) - 1:
             if new_col[i] == new_col[i + 1]:
@@ -113,7 +118,7 @@ class Game2048:
             i += 1
 
         while len(new_col) < len(col):
-            new_col.append(None)
+            new_col.append(0)
         return new_col
 
 
