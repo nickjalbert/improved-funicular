@@ -21,13 +21,14 @@ class Game2048:
             self.LEFT: self._do_left,
         }
         do_action[action]()
-        self._set_random_position(2)
+        self.add_new_random_number()
         return self.board
 
     def reset(self):
         self.board = [0] * 16
-        self._set_random_position(2)
-        self._set_random_position(2)
+        self.add_new_random_number()
+        self.add_new_random_number()
+        self.score = 0
 
     def render_board(self):
         board_max = max(self.board)
@@ -70,6 +71,9 @@ class Game2048:
             game.step(moves[move])
             print()
             game.render_board()
+
+    def add_new_random_number(self):
+        self._set_random_position(2 if random.random() <= 0.85 else 4)
 
     def _set_random_position(self, value):
         idxs = [i for i, val in enumerate(self.board) if val == 0]
