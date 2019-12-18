@@ -12,6 +12,25 @@ class Game2048:
         self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
         self.reset()
 
+    @property
+    def done(self):
+        self.board = self.board[:]
+        original_board = self.board[:]
+        original_score = self.score
+        is_done = True
+        actions = [self._do_up, self._do_left, self._do_right, self._do_down]
+        for action in actions:
+            action()
+            if original_board != self.board:
+                is_done = False
+                break
+        self.board = original_board
+        self.score = original_score
+        return is_done
+
+    def get_state(self):
+        return self.board, self.score, self.done
+
     def step(self, action):
         assert action in self.action_space
         do_action = {
@@ -20,9 +39,12 @@ class Game2048:
             self.DOWN: self._do_down,
             self.LEFT: self._do_left,
         }
+        old_board = self.board[:]
+        self.board = self.board[:]
         do_action[action]()
-        self.add_new_random_number()
-        return self.board
+        if old_board != self.board:
+            self.add_new_random_number()
+        return self.get_state()
 
     def reset(self):
         self.board = [0] * 16
@@ -69,9 +91,12 @@ class Game2048:
             if move not in moves:
                 continue
             should_print = True
-            game.step(moves[move])
+            _, _, done = game.step(moves[move])
             print()
             game.render_board()
+            if done:
+                print("Game over!")
+                break
 
     def add_new_random_number(self):
         self._set_random_position(2 if random.random() <= 0.85 else 4)
