@@ -59,6 +59,7 @@ class Game2048:
         should_print = True
         while True:
             if should_print:
+                print(f"Score: {self.score}")
                 print("Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?")
                 should_print = False
             move = readchar.readchar()
@@ -117,7 +118,9 @@ class Game2048:
         i = 0
         while i < len(new_col) - 1:
             if new_col[i] == new_col[i + 1]:
-                new_col[i] *= 2
+                val = new_col[i] * 2
+                self.score += val
+                new_col[i] = val
                 new_col.pop(i + 1)
             i += 1
 
