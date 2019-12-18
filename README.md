@@ -43,26 +43,48 @@ Down Left strategy:
 ## Example gameplay output
 
 ```
-Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?
-
-    ·     ·     4     4
     2     ·     ·     ·
     ·     ·     ·     ·
-    ·     ·     ·     ·
+    2     ·     ·     ·
+    4     4     ·     ·
 
 
+Score: 8
 Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?
+Move: Left
 
-    ·     ·     ·     ·
-    ·     ·     ·     ·
-    ·     ·     ·     2
-    2     ·     4     4
+    2     ·     ·     ·
+    2     ·     ·     ·
+    2     ·     ·     ·
+    8     ·     ·     ·
 
 
+Score: 16
 Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?
+Move: Down
+
+    ·     2     ·     ·
+    2     ·     ·     ·
+    4     ·     ·     ·
+    8     ·     ·     ·
+
+
+Score: 20
+Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?
+Move: Left
+
+    2     ·     ·     ·
+    2     ·     ·     ·
+    4     ·     ·     ·
+    8     2     ·     ·
+
+
+Score: 20
+Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?
+Move: Down
 
     ·     ·     ·     ·
-    ·     ·     ·     ·
-    2     2     ·     ·
-    2     8     ·     ·
+    4     ·     ·     ·
+    4     ·     ·     ·
+    8     2     4     ·
 ```

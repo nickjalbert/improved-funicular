@@ -69,14 +69,14 @@ class Game2048:
     def run_manual_loop(self):
         game.render_board()
         moves = {
-            "w": Game2048.UP,
-            "A": Game2048.UP,
-            "d": Game2048.RIGHT,
-            "C": Game2048.RIGHT,
-            "s": Game2048.DOWN,
-            "B": Game2048.DOWN,
-            "a": Game2048.LEFT,
-            "D": Game2048.LEFT,
+            "w": (Game2048.UP, "Up"),
+            "A": (Game2048.UP, "Up"),
+            "d": (Game2048.RIGHT, "Right"),
+            "C": (Game2048.RIGHT, "Right"),
+            "s": (Game2048.DOWN, "Down"),
+            "B": (Game2048.DOWN, "Down"),
+            "a": (Game2048.LEFT, "Left"),
+            "D": (Game2048.LEFT, "Left"),
         }
         should_print = True
         while True:
@@ -90,8 +90,9 @@ class Game2048:
                 break
             if move not in moves:
                 continue
+            print(f"Move: {moves[move][1]}")
             should_print = True
-            _, _, done = game.step(moves[move])
+            _, _, done = game.step(moves[move][0])
             print()
             game.render_board()
             if done:
