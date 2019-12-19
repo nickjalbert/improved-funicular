@@ -4,27 +4,14 @@ import random
 import pandas as pd
 import numpy as np
 
-
-class Direction(Enum):
-    R, D, L, U = 0, 1, 2, 3
-
-    def opposite(self):
-        return Direction((self.value + 2) % len(Direction))
-
-    @classmethod
-    def random(cls):
-        return Direction(np.random.randint(4))
-
-
-def test_direction_opposite():
-    assert Direction.R.opposite() == Direction.L
-    assert Direction.L.opposite() == Direction.R
-    assert Direction.D.opposite() == Direction.U
-    assert Direction.U.opposite() == Direction.D
-
-
 class BoardEnv:
+    RIGHT = 0
+    DOWN = 1
+    LEFT = 2
+    UP = 3
+
     def __init__(self, width=4, init_spots_filled=2):
+        self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
         assert 0 <= init_spots_filled <= width ** 2
         self.value = 0
         self.width = width
@@ -46,6 +33,10 @@ class BoardEnv:
         b.state = state
         return b
 
+    @classmethod
+    def random_direction(cls):
+        return np.random.randint(4)
+
     def __str__(self):
         return pd.DataFrame(self.state).to_string()
 
@@ -60,11 +51,9 @@ class BoardEnv:
     # takes a direction to move the board
     # returns tuple (next_state, reward, done)
     def step(self, direction):
-        # apply the direction to the board
-        assert isinstance(direction, Direction)
         # rotate the board so we only have to implement the shifting logic for one direction.
         # we will rotate it back later after we shift all the pieces.
-        state = np.rot90(m=self.state.copy(), k=direction.value)
+        state = np.rot90(m=self.state.copy(), k=direction)
 
         # when a merge happens on a spot, that spot becomes a stop-wall,
         # which means nothing else can be merged into that spot in this step.
@@ -118,7 +107,7 @@ class BoardEnv:
                     state[curr_row, curr_col] = 0
 
         # rotate our state back
-        rotated_back_state = np.rot90(m=state, k=(-1 * direction.value))
+        rotated_back_state = np.rot90(m=state, k=(-1 * direction))
 
         # if the move they attempted resulted in at least one tile moving, add a new tile in random spot
         if not np.array_equal(rotated_back_state, self.state):
@@ -134,9 +123,9 @@ class BoardEnv:
         return self.state.copy(), reward, self.done
 
 
-def test_direction_random():
+def test_boardenv_random_direction():
     for _ in range(50):
-        assert Direction.random().value in [0, 1, 2, 3]
+        assert BoardEnv.random_direction() in [0, 1, 2, 3]
 
 
 def test_boardenv_init():
@@ -167,10 +156,10 @@ def test_boardenv_move_logic():
     ]
     b = BoardEnv().from_init_state(init_state)
     assert np.array_equal(init_state, b.state)
-    state, reward, done = b.step(Direction.R)
+    state, reward, done = b.step(BoardEnv.RIGHT)
     assert reward == 4
     assert state[0, 2] == 4 and state[0, 3] == 4, b.state
-    state, reward, done = b.step(Direction.R)
+    state, reward, done = b.step(BoardEnv.RIGHT)
     assert reward >= 4
     assert state[0, 3] == 8, b.state
 
@@ -183,7 +172,7 @@ def test_boardenv_move_logic():
     ]
     b = BoardEnv().from_init_state(init_state)
     assert np.array_equal(init_state, b.state)
-    state, reward, done = b.step(Direction.D)
+    state, reward, done = b.step(BoardEnv.DOWN)
     assert reward == 4
     assert state[3, 1] == 4 and state[2, 1] == 2, b.state
 
@@ -197,14 +186,14 @@ def test_boardenv_fill_on_move_logic():
         [0.0, 0.0, 0.0, 0.0],
     ]
     b = BoardEnv().from_init_state(init_state)
-    state, reward, done = b.step(Direction.L)
+    state, reward, done = b.step(BoardEnv.LEFT)
     num_non_zero_spots = (b.state != 0).sum().sum()
     assert num_non_zero_spots == 2
 
 
 def test_boardenv_init():
     b = BoardEnv.from_init_state([[2, 0], [2, 0]])
-    _, reward, _ = b.step(Direction.D)
+    _, reward, _ = b.step(BoardEnv.DOWN)
     assert reward == 4
 
 
