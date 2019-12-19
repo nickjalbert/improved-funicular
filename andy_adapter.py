@@ -31,8 +31,8 @@ class Andy2048:
     def score(self):
         return self.andy.value
 
-    def step(self, direction, add_new_random_piece=False):
-        self.andy.step(direction, add_new_random_piece)
+    def step(self, direction):
+        self.andy.step(direction)
         return self.board, self.score, self.andy.done
 
     def get_state(self):
