@@ -30,6 +30,9 @@ class Nick2048:
     def get_state(self):
         return self.board, self.score, self.done
 
+    def set_board(self, board):
+        self.board = board[:]
+
     def step(self, action):
         assert action in self.action_space
         do_action = {

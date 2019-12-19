@@ -2,15 +2,16 @@ import sys
 import statistics
 import random
 from nick_2048 import Nick2048
+from andy_adapter import Andy2048
 
 TRIALS = 1000
 
 
-def do_trials(strategy, check_done_fn=None):
+def do_trials(cls, strategy, check_done_fn=None):
     scores = []
     max_tiles = []
     for i in range(TRIALS):
-        game = Nick2048()
+        game = cls()
         curr_board, score, done = game.get_state()
         while not done:
             assert curr_board == game.board
@@ -32,36 +33,36 @@ def do_trials(strategy, check_done_fn=None):
     )
 
 
-def try_only_go_right():
+def try_only_go_right(cls):
     def right_fn(board):
-        return Nick2048.RIGHT
+        return cls.RIGHT
 
     def right_done(prev, curr, score, done):
         return done or prev == curr
 
     right_fn.info = "Strategy only moves right"
-    do_trials(right_fn, right_done)
+    do_trials(cls, right_fn, right_done)
 
 
-def try_random():
+def try_random(cls):
     def random_fn(board):
-        choices = [Nick2048.UP, Nick2048.RIGHT, Nick2048.DOWN, Nick2048.LEFT]
+        choices = [cls.UP, cls.RIGHT, cls.DOWN, cls.LEFT]
         return random.choice(choices)
 
     random_fn.info = "Random strategy"
-    do_trials(random_fn)
+    do_trials(cls, random_fn)
 
 
-def try_down_left():
+def try_down_left(cls):
     def down_left_fn(board):
-        game = Nick2048()
-        game.board = board
-        down_left_actions = [Nick2048.DOWN, Nick2048.LEFT]
-        right_up_actions = [Nick2048.RIGHT, Nick2048.UP]
+        game = cls()
+        game.set_board(board)
+        down_left_actions = [cls.DOWN, cls.LEFT]
+        right_up_actions = [cls.RIGHT, cls.UP]
         random.shuffle(down_left_actions)
         random.shuffle(right_up_actions)
         for action in down_left_actions + right_up_actions:
-            game.board = board[:]
+            game.set_board(board[:])
             assert game.board == board
             game.step(action)
             if game.board != board:
@@ -70,14 +71,18 @@ def try_down_left():
 
     down_left_fn.info = "Down Left strategy"
 
-    do_trials(down_left_fn)
+    do_trials(cls, down_left_fn)
 
 
 def do_stats():
-    print(f"\nRunning {TRIALS} trials to test each strategy\n")
-    try_only_go_right()
-    try_random()
-    try_down_left()
+    print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
+    try_only_go_right(Nick2048)
+    try_random(Nick2048)
+    try_down_left(Nick2048)
+    print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
+    try_only_go_right(Andy2048)
+    try_random(Andy2048)
+    try_down_left(Andy2048)
 
 
 if __name__ == "__main__":
