@@ -55,7 +55,7 @@ class Nick2048:
         self.score = 0
 
     def add_new_random_number(self):
-        self._set_random_position(2 if random.random() <= 0.85 else 4)
+        self._set_random_position(2 if random.random() <= 0.9 else 4)
 
     def _set_random_position(self, value):
         idxs = [i for i, val in enumerate(self.board) if val == 0]
