@@ -117,3 +117,34 @@ class BoardEnv:
                     break
     
         return self.state.copy(), reward, self.done
+
+def test_direction_random():
+    for _ in range(100):
+        assert Direction.random().value in [0,1,2,3]
+
+def test_boardenv_init():
+    board_width = random.randint(4, 10)
+    num_filled_init = random.randint(0, 4)
+    b = BoardEnv(width=board_width, init_spots_filled=num_filled_init)
+    num_non_zero_spots = (b.state != 0).sum().sum()
+    assert num_non_zero_spots == num_filled_init, "BoardEnv initializing wrong num spots %s" % num_non_zero_spots
+
+def test_boardenv_from_init_state():
+    b = BoardEnv.from_init_state([[0,0],[2,0]])
+    assert b.value == 0.0
+    assert np.sum(b.state) == 2
+    assert b.width == 2
+    assert b.init_spots_filled == 1
+
+def test_boardenv_init():
+    b = BoardEnv.from_init_state([[2,0],[2,0]])
+    _, reward, _ = b.step(Direction.D)
+    assert reward == 4
+    
+
+def test_boardenv_done():
+    b = BoardEnv()
+    b.state = [1]*b.width**b.width
+    assert b.done, "full board should be done."
+    b.state[0] = 0
+    assert not b.done, "non full board should not be done."
