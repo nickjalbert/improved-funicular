@@ -11,7 +11,7 @@ Python 3.7.
 * `git clone https://github.com/nickjalbert/improved-funicular.git`
 * `cd improved-funicular`
 * `virtualenv improved-funicular`
-* `source andy-improved-funicular/bin/activate`
+* `source improved-funicular/bin/activate`
 * `pip install -r requirements.txt`
 * `python play_in_console.py nick` or `python play_in_console.py andy`
 
