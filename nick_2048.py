@@ -1,11 +1,11 @@
 import random
-
+from copy import deepcopy
 
 class Nick2048:
-    UP = "U"
-    RIGHT = "R"
-    DOWN = "D"
-    LEFT = "L"
+    UP = 3
+    RIGHT = 0
+    DOWN = 1
+    LEFT = 2
 
     def __init__(self):
         self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
@@ -33,7 +33,10 @@ class Nick2048:
     def set_board(self, board):
         self.board = board[:]
 
-    def step(self, action):
+    def step(self, action, dry_run=False, add_new_random_piece=True):
+        if dry_run:
+            board_copy = self.board
+            score_copy = self.score
         assert action in self.action_space
         do_action = {
             self.UP: self._do_up,
@@ -44,9 +47,13 @@ class Nick2048:
         old_board = self.board[:]
         self.board = self.board[:]
         do_action[action]()
-        if old_board != self.board:
+        if old_board != self.board and add_new_random_piece:
             self.add_new_random_number()
-        return self.get_state()
+        ret_value = deepcopy(self.get_state())
+        if dry_run:
+            self.board = board_copy
+            self.score = score_copy
+        return ret_value
 
     def reset(self):
         self.board = [0] * 16

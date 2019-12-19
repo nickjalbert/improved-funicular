@@ -50,7 +50,7 @@ class BoardEnv:
 
     # takes a direction to move the board
     # returns tuple (next_state, reward, done)
-    def step(self, direction):
+    def step(self, direction, add_new_random_piece=True):
         # rotate the board so we only have to implement the shifting logic for one direction.
         # we will rotate it back later after we shift all the pieces.
         state = np.rot90(m=self.state.copy(), k=direction)
@@ -109,18 +109,20 @@ class BoardEnv:
         # rotate our state back
         rotated_back_state = np.rot90(m=state, k=(-1 * direction))
 
-        # if the move they attempted resulted in at least one tile moving, add a new tile in random spot
-        if not np.array_equal(rotated_back_state, self.state):
+        # if the move they attempted resulted in at least one tile moving,
+        # add a new tile in random spot
+        if not np.array_equal(rotated_back_state, self.state): 
             self.state = rotated_back_state
-            indices = [((x, y)) for x in range(self.width) for y in range(self.width)]
-            while indices:
-                rand_index = indices.pop(random.randint(0, len(indices) - 1))
-                if self.state[rand_index[0], rand_index[1]] == 0.0:
-                    val = 2.0 if random.random() > 0.1 else 4.0
-                    self.state[rand_index[0], rand_index[1]] = val
-                    break
-
-        return self.state.copy(), reward, self.done
+            if add_new_random_piece:
+                indices = [((x, y)) for x in range(self.width) for y in range(self.width)]
+                while indices:
+                    rand_index = indices.pop(random.randint(0, len(indices) - 1))
+                    if self.state[rand_index[0], rand_index[1]] == 0.0:
+                        val = 2.0 if random.random() > 0.1 else 4.0
+                        self.state[rand_index[0], rand_index[1]] = val
+                        break
+        ret_val = self.state.copy()
+        return ret_val, reward, self.done
 
 
 def test_boardenv_random_direction():
@@ -137,7 +139,6 @@ def test_boardenv_init():
         "BoardEnv initializing wrong num spots %s" % num_non_zero_spots
     )
 
-
 def test_boardenv_from_init_state():
     b = BoardEnv.from_init_state([[0, 0], [2, 0]])
     assert b.value == 0.0
@@ -145,6 +146,49 @@ def test_boardenv_from_init_state():
     assert b.width == 2
     assert b.init_spots_filled == 1
 
+def test_board_env_step():
+    # make sure the behavior is correct when a row is full of same values.
+    init_state = [
+        [2.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
+    target_state = [
+        [0.0, 0.0, 0.0, 2.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 2.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
+    b = BoardEnv().from_init_state(init_state)
+    state, reward, done = b.step(BoardEnv.RIGHT, add_new_random_piece=False)
+    assert np.array_equal(state, target_state), target_state
+
+    init_state = [
+        [4.0, 2.0, 2.0, 4.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
+    target_state = [
+        [0.0, 4.0, 4.0, 4.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 2.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
+    b = BoardEnv().from_init_state(init_state)
+    state, reward, done = b.step(BoardEnv.RIGHT, add_new_random_piece=False)
+    assert np.array_equal(state, target_state), target_state
+
+    init_state = [
+        [2.0, 0.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+        [0.0, 2.0, 0.0, 0.0],
+        [0.0, 0.0, 0.0, 0.0],
+    ]
+    b = BoardEnv().from_init_state(init_state)
+    state, reward, done = b.step(BoardEnv.RIGHT, add_new_random_piece=False)
+    assert state[0,3] == 2.0 and state[2,3] == 2.0, state
 
 def test_boardenv_move_logic():
     # make sure the behavior is correct when a row is full of same values.
@@ -188,7 +232,7 @@ def test_boardenv_fill_on_move_logic():
     b = BoardEnv().from_init_state(init_state)
     state, reward, done = b.step(BoardEnv.LEFT)
     num_non_zero_spots = (b.state != 0).sum().sum()
-    assert num_non_zero_spots == 2
+    assert num_non_zero_spots == 2, state
 
 
 def test_boardenv_init():

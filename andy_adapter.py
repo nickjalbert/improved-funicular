@@ -8,6 +8,14 @@ class Andy2048:
     DOWN = BoardEnv.DOWN
     LEFT = BoardEnv.LEFT
 
+    @classmethod
+    def from_init_state(cls, init_state):
+        andy_wrapper = cls()
+        if isinstance(init_state, list) and len(init_state) == 16:
+            init_state =np.array(init_state).reshape((4,4))
+        andy_wrapper.andy = BoardEnv.from_init_state(init_state)
+        return andy_wrapper
+
     def __init__(self):
         self.andy = BoardEnv()
 
@@ -23,8 +31,8 @@ class Andy2048:
     def score(self):
         return self.andy.value
 
-    def step(self, direction):
-        self.andy.step(direction)
+    def step(self, direction, add_new_random_piece=False):
+        self.andy.step(direction, add_new_random_piece)
         return self.board, self.score, self.andy.done
 
     def get_state(self):
