@@ -85,7 +85,7 @@ class BoardEnv:
                 new_val = 0.0
                 # slide the piece in each row to the right (iterate check_spot to the right)
                 # stop when we get to the edge of the board or else a non-zero position.
-                while check_col < self.width and check_col <= stop_walls[curr_row] and curr_val != 0:
+                while check_col < self.width and check_col < stop_walls[curr_row] and curr_val != 0:
                     check_val = state[curr_row, check_col]
                     if check_val == 0.0:  # we will want to slide the cur position over top of this zero
                         new_col = check_col
