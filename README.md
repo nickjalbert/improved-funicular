@@ -4,10 +4,16 @@ Python 3 implementation of the [2048 game](https://play2048.co/).
 
 ## Setup
 
+Developed under Python 3.7 on OS X Catalina with pip and virtualenv installed
+on the system.  Look [here](https://stackoverflow.com/a/23842752) to setup
+Python 3.7.
+
 * `git clone https://github.com/nickjalbert/improved-funicular.git`
 * `cd improved-funicular`
+* `virtualenv improved-funicular`
+* `source andy-improved-funicular/bin/activate`
 * `pip install -r requirements.txt`
-* `python game_2048.py`
+* `python play_in_console.py nick` or `python play_in_console.py andy`
 
 ## Example strategy trials
 

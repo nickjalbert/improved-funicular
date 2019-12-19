@@ -1,8 +1,6 @@
 import random
-import readchar
 
-
-class Game2048:
+class Nick2048:
     UP = "U"
     RIGHT = "R"
     DOWN = "D"
@@ -51,53 +49,6 @@ class Game2048:
         self.add_new_random_number()
         self.add_new_random_number()
         self.score = 0
-
-    def render_board(self):
-        board_max = max(self.board)
-
-        def j(el):
-            return str(el).rjust(5)
-
-        p = ["·" if x == 0 else x for x in self.board]
-        print(
-            f"{j(p[0])} {j(p[1])} {j(p[2])} {j(p[3])}\n"
-            f"{j(p[4])} {j(p[5])} {j(p[6])} {j(p[7])}\n"
-            f"{j(p[8])} {j(p[9])} {j(p[10])} {j(p[11])}\n"
-            f"{j(p[12])} {j(p[13])} {j(p[14])} {j(p[15])}\n\n"
-        )
-
-    def run_manual_loop(self):
-        game.render_board()
-        moves = {
-            "w": (Game2048.UP, "Up"),
-            "A": (Game2048.UP, "Up"),
-            "d": (Game2048.RIGHT, "Right"),
-            "C": (Game2048.RIGHT, "Right"),
-            "s": (Game2048.DOWN, "Down"),
-            "B": (Game2048.DOWN, "Down"),
-            "a": (Game2048.LEFT, "Left"),
-            "D": (Game2048.LEFT, "Left"),
-        }
-        should_print = True
-        while True:
-            if should_print:
-                print(f"Score: {self.score}")
-                print("Move (w=UP, d=RIGHT, s=DOWN, a=LEFT, or arrows)?")
-                should_print = False
-            move = readchar.readchar()
-            if move in ["\x03", "\x04", "\x1a"]:
-                print("Exiting...")
-                break
-            if move not in moves:
-                continue
-            print(f"Move: {moves[move][1]}")
-            should_print = True
-            _, _, done = game.step(moves[move][0])
-            print()
-            game.render_board()
-            if done:
-                print("Game over!")
-                break
 
     def add_new_random_number(self):
         self._set_random_position(2 if random.random() <= 0.85 else 4)
@@ -153,8 +104,3 @@ class Game2048:
         while len(new_col) < len(col):
             new_col.append(0)
         return new_col
-
-
-if __name__ == "__main__":
-    game = Game2048()
-    game.run_manual_loop()
