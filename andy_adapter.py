@@ -1,5 +1,6 @@
 from andy_2048 import BoardEnv, Direction
 
+
 class Andy2048:
     UP = Direction.U
     RIGHT = Direction.R

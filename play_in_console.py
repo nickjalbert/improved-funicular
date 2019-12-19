@@ -37,6 +37,7 @@ def run_manual_loop(game):
             print("Game over!")
             break
 
+
 def render_board(game):
     def j(el):
         return str(el).rjust(5)
@@ -49,6 +50,7 @@ def render_board(game):
         f"{j(p[12])} {j(p[13])} {j(p[14])} {j(p[15])}\n\n"
     )
 
+
 def play_nick_version():
     game = Nick2048()
     run_manual_loop(game)
@@ -58,21 +60,20 @@ def play_andy_version():
     game = Andy2048()
     run_manual_loop(game)
 
-if __name__ == '__main__':
-    if len(sys.argv) != 2 or sys.argv[1] not in ['andy', 'nick']:
-        print(f'\nUsage:')
-        print(f'\tpython {sys.argv[0]} [andy|nick]')
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2 or sys.argv[1] not in ["andy", "nick"]:
+        print(f"\nUsage:")
+        print(f"\tpython {sys.argv[0]} [andy|nick]")
         print()
-        print(f'For example:')
-        print(f'\tpython {sys.argv[0]} andy # plays Andy\'s version')
-        print(f'\tpython {sys.argv[0]} nick # plays Nick\'s version')
+        print(f"For example:")
+        print(f"\tpython {sys.argv[0]} andy # plays Andy's version")
+        print(f"\tpython {sys.argv[0]} nick # plays Nick's version")
         print()
         sys.exit(0)
-    if sys.argv[1] == 'nick':
+    if sys.argv[1] == "nick":
         play_nick_version()
-    elif sys.argv[1] == 'andy':
+    elif sys.argv[1] == "andy":
         play_andy_version()
     else:
-        raise Exception(f'Unknown version: {sys.argv[1]}')
-
-
+        raise Exception(f"Unknown version: {sys.argv[1]}")

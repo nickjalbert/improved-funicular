@@ -1,5 +1,6 @@
 import random
 
+
 class Nick2048:
     UP = "U"
     RIGHT = "R"
