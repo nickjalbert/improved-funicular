@@ -95,7 +95,7 @@ class BoardEnv:
                             new_col = check_col
                             new_val = curr_val * 2.0
                             self.value += new_val
-                            reward = new_val
+                            reward += new_val
                             stop_walls[curr_row] = check_col # don't let anything merge into this again.
                         break  # hit a non-zero, stop checking to the right for this (curr_col, curr_row) piece
                     check_col += 1
