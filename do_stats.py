@@ -1,14 +1,16 @@
+import sys
 import statistics
 import random
-from game_2048 import Game2048
+from nick_2048 import Nick2048
 
 TRIALS = 1000
 
 
 def do_trials(strategy, check_done_fn=None):
     scores = []
+    max_tiles = []
     for i in range(TRIALS):
-        game = Game2048()
+        game = Nick2048()
         curr_board, score, done = game.get_state()
         while not done:
             assert curr_board == game.board
@@ -18,8 +20,10 @@ def do_trials(strategy, check_done_fn=None):
             if check_done_fn is not None:
                 done = check_done_fn(prev_board, curr_board, score, done)
         scores.append(score)
+        max_tiles.append(max(game.board))
     print(
         f"{strategy.info}:\n"
+        f"\tMax Tile: {max(max_tiles)}\n"
         f"\tMax Score: {max(scores)}\n"
         f"\tMean Score: {statistics.mean(scores)}\n"
         f"\tMedian Score: {statistics.median(scores)}\n"
@@ -30,7 +34,7 @@ def do_trials(strategy, check_done_fn=None):
 
 def try_only_go_right():
     def right_fn(board):
-        return Game2048.RIGHT
+        return Nick2048.RIGHT
 
     def right_done(prev, curr, score, done):
         return done or prev == curr
@@ -41,7 +45,7 @@ def try_only_go_right():
 
 def try_random():
     def random_fn(board):
-        choices = [Game2048.UP, Game2048.RIGHT, Game2048.DOWN, Game2048.LEFT]
+        choices = [Nick2048.UP, Nick2048.RIGHT, Nick2048.DOWN, Nick2048.LEFT]
         return random.choice(choices)
 
     random_fn.info = "Random strategy"
@@ -50,10 +54,10 @@ def try_random():
 
 def try_down_left():
     def down_left_fn(board):
-        game = Game2048()
+        game = Nick2048()
         game.board = board
-        down_left_actions = [Game2048.DOWN, Game2048.LEFT]
-        right_up_actions = [Game2048.RIGHT, Game2048.UP]
+        down_left_actions = [Nick2048.DOWN, Nick2048.LEFT]
+        right_up_actions = [Nick2048.RIGHT, Nick2048.UP]
         random.shuffle(down_left_actions)
         random.shuffle(right_up_actions)
         for action in down_left_actions + right_up_actions:
