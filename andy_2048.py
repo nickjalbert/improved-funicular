@@ -119,7 +119,7 @@ class BoardEnv:
         return self.state.copy(), reward, self.done
 
 def test_direction_random():
-    for _ in range(100):
+    for _ in range(50):
         assert Direction.random().value in [0,1,2,3]
 
 def test_boardenv_init():
@@ -135,6 +135,36 @@ def test_boardenv_from_init_state():
     assert np.sum(b.state) == 2
     assert b.width == 2
     assert b.init_spots_filled == 1
+
+def test_boardenv_move_logic():
+    # make sure the behavior is correct when a row is full of same values.
+    init_state= [[2.0,2.0,2.0,2.0],[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+    b = BoardEnv().from_init_state(init_state)
+    assert np.array_equal(init_state, b.state)
+    state, reward, done = b.step(Direction.R)
+    assert reward == 4
+    assert state[0,2] == 4 and state[0,3] == 4, b.state
+    state, reward, done = b.step(Direction.R)
+    assert reward >= 4
+    assert state[0,3] == 8, b.state
+
+    # make sure the behavior is correct when 3 elts are same in a row
+    init_state= [[0.0,2.0,0.0,0.0],[0.0, 2.0, 0.0, 0.0], [0.0, 2.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+    b = BoardEnv().from_init_state(init_state)
+    assert np.array_equal(init_state, b.state)
+    state, reward, done = b.step(Direction.D)
+    assert reward == 4
+    assert state[3,1] == 4 and state[2,1] == 2, b.state
+
+
+def test_boardenv_fill_on_move_logic():
+    # make sure a new piece is added that is either a 2 or a 4
+    init_state= [[2.0,2.0,0.0,0.0],[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]
+    b = BoardEnv().from_init_state(init_state)
+    state, reward, done = b.step(Direction.L)
+    num_non_zero_spots = (b.state != 0).sum().sum()
+    assert num_non_zero_spots == 2
+
 
 def test_boardenv_init():
     b = BoardEnv.from_init_state([[2,0],[2,0]])
