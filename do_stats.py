@@ -11,8 +11,6 @@ def do_trials(cls, strategy, check_done_fn=None):
     scores = []
     max_tiles = []
     for i in range(TRIALS):
-        if i % 1000 == 0:
-            print("iter %s" % i)
         game = cls()
         curr_board, score, done = game.get_state()
         while not done:
@@ -75,13 +73,13 @@ def try_down_left(cls):
 
 
 def do_stats():
-    #print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
-    #try_only_go_right(Nick2048)
-    #try_random(Nick2048)
+    print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
+    try_only_go_right(Nick2048)
+    try_random(Nick2048)
     try_down_left(Nick2048)
-    #print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
-    #try_only_go_right(Andy2048)
-    #try_random(Andy2048)
+    print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
+    try_only_go_right(Andy2048)
+    try_random(Andy2048)
     try_down_left(Andy2048)
 
 
