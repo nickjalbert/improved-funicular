@@ -4,7 +4,7 @@ import random
 from nick_2048 import Nick2048
 from andy_adapter import Andy2048
 
-TRIALS = 10000
+TRIALS = 1000
 
 
 def do_trials(cls, strategy, check_done_fn=None):
