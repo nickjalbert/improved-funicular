@@ -1,11 +1,20 @@
-from andy_2048 import BoardEnv, Direction
+from andy_2048 import BoardEnv
+import numpy as np
 
 
 class Andy2048:
-    UP = Direction.U
-    RIGHT = Direction.R
-    DOWN = Direction.D
-    LEFT = Direction.L
+    UP = BoardEnv.UP
+    RIGHT = BoardEnv.RIGHT
+    DOWN = BoardEnv.DOWN
+    LEFT = BoardEnv.LEFT
+
+    @classmethod
+    def from_init_state(cls, init_state):
+        andy_wrapper = cls()
+        if isinstance(init_state, list) and len(init_state) == 16:
+            init_state =np.array(init_state).reshape((4,4))
+        andy_wrapper.andy = BoardEnv.from_init_state(init_state)
+        return andy_wrapper
 
     def __init__(self):
         self.andy = BoardEnv()
@@ -30,9 +39,4 @@ class Andy2048:
         return self.board, self.score, self.andy.done
 
     def set_board(self, board):
-        self.andy.state = [
-            [board[0], board[1], board[2], board[3]],
-            [board[4], board[5], board[6], board[7]],
-            [board[8], board[9], board[10], board[11]],
-            [board[12], board[13], board[14], board[15]],
-        ]
+        self.andy.state = np.array(board).reshape(4,4)

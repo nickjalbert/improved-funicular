@@ -70,7 +70,6 @@ def try_down_left(cls):
         assert False, "Some action should do something"
 
     down_left_fn.info = "Down Left strategy"
-
     do_trials(cls, down_left_fn)
 
 
