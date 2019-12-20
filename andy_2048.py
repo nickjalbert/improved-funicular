@@ -4,6 +4,7 @@ import random
 import pandas as pd
 import numpy as np
 
+
 class BoardEnv:
     RIGHT = 0
     DOWN = 1
@@ -111,7 +112,7 @@ class BoardEnv:
 
         # if the move they attempted resulted in at least one tile moving,
         # add a new tile in random spot
-        if not np.array_equal(rotated_back_state, self.state): 
+        if not np.array_equal(rotated_back_state, self.state):
             self.state = rotated_back_state
             indices = [((x, y)) for x in range(self.width) for y in range(self.width)]
             while indices:
@@ -137,12 +138,14 @@ def test_boardenv_init():
         "BoardEnv initializing wrong num spots %s" % num_non_zero_spots
     )
 
+
 def test_boardenv_from_init_state():
     b = BoardEnv.from_init_state([[0, 0], [2, 0]])
     assert b.value == 0.0
     assert np.sum(b.state) == 2
     assert b.width == 2
     assert b.init_spots_filled == 1
+
 
 def test_board_env_step():
     # make sure the behavior is correct when a row is full of same values.
@@ -186,7 +189,8 @@ def test_board_env_step():
     ]
     b = BoardEnv().from_init_state(init_state)
     state, reward, done = b.step(BoardEnv.RIGHT, add_new_random_piece=False)
-    assert state[0,3] == 2.0 and state[2,3] == 2.0, state
+    assert state[0, 3] == 2.0 and state[2, 3] == 2.0, state
+
 
 def test_boardenv_move_logic():
     # make sure the behavior is correct when a row is full of same values.
