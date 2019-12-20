@@ -15,6 +15,12 @@ Python 3.7.
 * `pip install -r requirements.txt`
 * `python play_in_console.py nick` or `python play_in_console.py andy`
 
+## Tests
+
+To run Andy's tests:
+
+* `pytest andy_2048.py`
+
 ## Example strategy trials
 
 Run `python do_stats.py` to try several different strategies.
