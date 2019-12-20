@@ -32,6 +32,7 @@ def do_trials(cls, strategy, check_done_fn=None):
         f"\tMin Score: {min(scores)}\n"
     )
 
+
 def try_only_go_right(cls):
     def right_fn(board):
         return cls.RIGHT
@@ -81,7 +82,6 @@ def do_stats():
     try_only_go_right(Andy2048)
     try_random(Andy2048)
     try_down_left(Andy2048)
-
 
 
 if __name__ == "__main__":
