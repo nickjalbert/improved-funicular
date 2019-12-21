@@ -1,5 +1,7 @@
 # improved-funicular
 
+[![Actions Status](https://github.com/nickjalbert/improved-funicular/workflows/python_lint_and_test/badge.svg)](https://github.com/nickjalbert/improved-funicular/actions)
+
 Python 3 implementation of the [2048 game](https://play2048.co/).
 
 ## Setup
