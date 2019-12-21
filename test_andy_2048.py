@@ -133,9 +133,3 @@ def test_boardenv_fill_on_move_logic():
     state, reward, done = b.step(BoardEnv.LEFT)
     num_non_zero_spots = (b.state != 0).sum().sum()
     assert num_non_zero_spots == 2, state
-
-
-def test_boardenv_init():
-    b = BoardEnv.from_init_state([[2, 0], [2, 0]])
-    _, reward, _ = b.step(BoardEnv.DOWN)
-    assert reward == 4

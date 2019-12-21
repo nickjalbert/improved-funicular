@@ -1,4 +1,3 @@
-import sys
 import statistics
 import random
 from nick_2048 import Nick2048
