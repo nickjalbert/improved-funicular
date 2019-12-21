@@ -32,8 +32,8 @@ class Andy2048:
         return self.andy.value
 
     def step(self, direction):
-        self.andy.step(direction)
-        return self.board, self.score, self.andy.done
+        _, reward, _ = self.andy.step(direction)
+        return self.board, reward, self.andy.done
 
     def get_state(self):
         return self.board, self.score, self.andy.done
