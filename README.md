@@ -28,28 +28,58 @@ Run `python do_stats.py` to try several different strategies.
 ```
 $ python do_stats.py
 
-Running 1000 trials to test each strategy
+Running 1000 trials with Nick impl to test each strategy
 
 Strategy only moves right:
-	Max Score: 172
-	Mean Score: 14.028
+	Max Tile: 16
+	Max Score: 184
+	Mean Score: 12.896
 	Median Score: 4.0
-	Standard Dev: 20.92780899160706
+	Standard Dev: 19.793457630362738
 	Min Score: 0
 
 Random strategy:
-	Max Score: 3088
-	Mean Score: 1059.188
-	Median Score: 1012.0
-	Standard Dev: 519.918555121819
-	Min Score: 148
+	Max Tile: 256
+	Max Score: 3024
+	Mean Score: 1081.916
+	Median Score: 1052.0
+	Standard Dev: 510.36060672126024
+	Min Score: 208
 
 Down Left strategy:
-	Max Score: 7912
-	Mean Score: 2101.34
-	Median Score: 1782.0
-	Standard Dev: 1100.5140651566464
-	Min Score: 240
+	Max Tile: 512
+	Max Score: 7636
+	Mean Score: 2232.48
+	Median Score: 1966.0
+	Standard Dev: 1178.3934405370308
+	Min Score: 268
+
+
+Running 1000 trials with Andy impl to test each strategy
+
+Strategy only moves right:
+	Max Tile: 16
+	Max Score: 172.0
+	Mean Score: 13.724
+	Median Score: 4.0
+	Standard Dev: 21.576407610289653
+	Min Score: 0.0
+
+Random strategy:
+	Max Tile: 256
+	Max Score: 3268.0
+	Mean Score: 1094.132
+	Median Score: 1062.0
+	Standard Dev: 541.5182883639598
+	Min Score: 120.0
+
+Down Left strategy:
+	Max Tile: 512
+	Max Score: 7496.0
+	Mean Score: 2245.812
+	Median Score: 1942.0
+	Standard Dev: 1184.6117497533332
+	Min Score: 188.0
 ```
 
 ## Example gameplay output
