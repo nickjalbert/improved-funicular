@@ -15,10 +15,10 @@ def test_boardenv_init():
 
 
 def test_set_board():
-    board = [1, 2, 3, 4, 5]
+    board = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
     game = Nick2048()
     game.set_board(board)
-    assert game.board == [1, 2, 3, 4, 5]
+    assert game.board == board
     assert not (game.board is board)
 
 
@@ -112,9 +112,37 @@ def test_boardenv_fill_on_move_logic():
     assert reward == 4
     assert len([v for v in game.board if v != 0]) == 2
 
+
 def test_set_board_makes_copy():
     init_state = [2, 2, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
     assert not (game.board is init_state)
+
+
+def test_get_valid_actions():
+    # UP, DOWN, LEFT, RIGHT is valid
+    all_board = [2, 4, 8, 16, 2, 8, 16, 32, 32, 16, 8, 4, 32, 32, 4, 8]
+    game = Nick2048()
+    game.set_board(all_board)
+    all_actions = game.get_valid_actions()
+    assert game.board == all_board
+    assert (game.UP, 68) in all_actions
+    assert (game.DOWN, 68) in all_actions
+    assert (game.RIGHT, 64) in all_actions
+    assert (game.LEFT, 64) in all_actions
+    # No valid actions
+    no_board = [2, 4, 8, 16, 32, 64, 128, 256, 2, 4, 8, 16, 32, 64, 128, 256]
+    game.set_board(no_board)
+    no_actions = game.get_valid_actions()
+    assert game.board == no_board
+    assert len(no_actions) == 0
+    # DOWN or RIGHT is valid
+    no_rewards_board = [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    game.set_board(no_rewards_board)
+    some_actions = game.get_valid_actions()
+    assert game.board == no_rewards_board
+    assert len(some_actions) == 2
+    assert (game.DOWN, 0) in some_actions
+    assert (game.RIGHT, 0) in some_actions

@@ -23,19 +23,33 @@ class Nick2048:
 
     @property
     def done(self):
-        self.board = self.board[:]
-        original_board = self.board[:]
-        original_score = self.score
-        is_done = True
-        actions = [self._do_up, self._do_left, self._do_right, self._do_down]
-        for action in actions:
-            action()
-            if original_board != self.board:
-                is_done = False
-                break
-        self.board = original_board
-        self.score = original_score
-        return is_done
+        if len([v for v in self.board if v == 0]) > 0:
+            return False
+        # board is full, so just check neighbors to see if we can squish
+        check_indices = {
+            0: [1, 4],
+            1: [0, 2, 5],
+            2: [1, 3, 6],
+            3: [2, 7],
+            4: [0, 5, 8],
+            5: [1, 4, 6, 9],
+            6: [2, 5, 7, 10],
+            7: [3, 6, 11],
+            8: [4, 9, 12],
+            9: [5, 8, 10, 13],
+            10: [6, 9, 11, 14],
+            11: [7, 10, 15],
+            12: [8, 13],
+            13: [9, 12, 14],
+            14: [10, 13, 15],
+            15: [11, 14],
+        }
+        for (idx, check_idxs) in check_indices.items():
+            el = self.board[idx]
+            for check_idx in check_idxs:
+                if el == self.board[check_idx]:
+                    return False
+        return True
 
     @classmethod
     def random_direction(cls):
@@ -46,7 +60,19 @@ class Nick2048:
 
     def set_board(self, board):
         # Copy board as we set so we don't get surprising aliasing errors
+        assert len(board) == 16
         self.board = board[:]
+
+    def get_valid_actions(self):
+        """Returns list of 2-tuples: [(action, reward),...]"""
+        test_game = self.__class__()
+        valid_actions = []
+        for action in [self.UP, self.DOWN, self.LEFT, self.RIGHT]:
+            test_game.set_board(self.board)
+            board, reward, _ = test_game.step(action)
+            if board != self.board:
+                valid_actions.append((action, reward))
+        return valid_actions
 
     def step(self, action):
         """Returns a 3-tuple of (board, reward for action, boolean is_done)"""
