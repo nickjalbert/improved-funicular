@@ -5,7 +5,7 @@ from andy_adapter import Andy2048
 
 
 def run_manual_loop(game):
-    render_board(game)
+    game.render_board()
     moves = {
         "w": (game.UP, "Up"),
         "A": (game.UP, "Up"),
@@ -32,23 +32,10 @@ def run_manual_loop(game):
         should_print = True
         _, _, done = game.step(moves[move][0])
         print()
-        render_board(game)
+        game.render_board()
         if done:
             print("Game over!")
             break
-
-
-def render_board(game):
-    def j(el):
-        return str(el).rjust(5)
-
-    p = ["·" if x == 0 else x for x in game.board]
-    print(
-        f"{j(p[0])} {j(p[1])} {j(p[2])} {j(p[3])}\n"
-        f"{j(p[4])} {j(p[5])} {j(p[6])} {j(p[7])}\n"
-        f"{j(p[8])} {j(p[9])} {j(p[10])} {j(p[11])}\n"
-        f"{j(p[12])} {j(p[13])} {j(p[14])} {j(p[15])}\n\n"
-    )
 
 
 def play_nick_version():

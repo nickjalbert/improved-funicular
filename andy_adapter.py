@@ -1,8 +1,9 @@
+from base_2048 import Base2048
 from andy_2048 import BoardEnv
 import numpy as np
 
 
-class Andy2048:
+class Andy2048(Base2048):
     UP = BoardEnv.UP
     RIGHT = BoardEnv.RIGHT
     DOWN = BoardEnv.DOWN
@@ -39,7 +40,7 @@ class Andy2048:
         return self.board, self.score, self.andy.done
 
     def set_board(self, board):
-        self.andy.state = np.array(board).reshape(4, 4)
+        self.andy.state = np.array(board[:]).reshape(4, 4)
 
     @classmethod
     def random_direction(cls):

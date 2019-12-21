@@ -1,4 +1,5 @@
 import random
+from base_2048 import Base2048
 
 # self.board is a 1D list that represents the 2D board follows:
 #       [
@@ -11,7 +12,7 @@ import random
 # TODO: allow for boards of different dimensions
 
 
-class Nick2048:
+class Nick2048(Base2048):
     RIGHT = 0
     DOWN = 1
     LEFT = 2
@@ -63,17 +64,6 @@ class Nick2048:
         assert len(board) == 16
         self.board = board[:]
 
-    def get_valid_actions(self):
-        """Returns list of 2-tuples: [(action, reward),...]"""
-        test_game = self.__class__()
-        valid_actions = []
-        for action in [self.UP, self.DOWN, self.LEFT, self.RIGHT]:
-            test_game.set_board(self.board)
-            board, reward, _ = test_game.step(action)
-            if board != self.board:
-                valid_actions.append((action, reward))
-        return valid_actions
-
     def step(self, action):
         """Returns a 3-tuple of (board, reward for action, boolean is_done)"""
         assert action in self.action_space
@@ -84,7 +74,6 @@ class Nick2048:
             self.LEFT: self._do_left,
         }
         old_board = self.board[:]
-        self.board = self.board[:]
         old_score = self.score
         do_action[action]()
         if old_board != self.board:
@@ -93,7 +82,7 @@ class Nick2048:
         return board, new_score - old_score, done
 
     def reset(self):
-        self.board = [0] * 16
+        self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         self.add_new_random_number()
         self.add_new_random_number()
         self.score = 0
