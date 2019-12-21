@@ -10,6 +10,9 @@ class Base2048:
                 valid_actions.append((action, reward))
         return valid_actions
 
+    def get_valid_actions_by_reward(self):
+        return sorted(self.get_valid_actions(), key=lambda x: -1 * x[1])
+
     def render_board(self):
         def j(el):
             return str(el).rjust(5)

@@ -146,3 +146,18 @@ def test_get_valid_actions():
     assert len(some_actions) == 2
     assert (game.DOWN, 0) in some_actions
     assert (game.RIGHT, 0) in some_actions
+
+
+def test_get_valid_actions_by_reward():
+    # UP, DOWN, LEFT, RIGHT is valid
+    board = [2, 4, 4, 2, 2, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    game = Nick2048()
+    game.set_board(board)
+    action_rewards = game.get_valid_actions_by_reward()
+    assert game.board == board
+    left_right = [(game.LEFT, 24), (game.RIGHT, 24)]
+    up_down = [(game.UP, 4), (game.DOWN, 4)]
+    assert action_rewards[0] in left_right
+    assert action_rewards[1] in left_right
+    assert action_rewards[2] in up_down
+    assert action_rewards[3] in up_down
