@@ -45,6 +45,7 @@ class Nick2048:
         return self.board, self.score, self.done
 
     def set_board(self, board):
+        # Copy board as we set so we don't get surprising aliasing errors
         self.board = board[:]
 
     def step(self, action):

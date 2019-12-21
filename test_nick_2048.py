@@ -111,3 +111,10 @@ def test_boardenv_fill_on_move_logic():
     assert state == game.board
     assert reward == 4
     assert len([v for v in game.board if v != 0]) == 2
+
+def test_set_board_makes_copy():
+    init_state = [2, 2, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    game = Nick2048()
+    game.set_board(init_state)
+    assert game.board == init_state
+    assert not (game.board is init_state)
