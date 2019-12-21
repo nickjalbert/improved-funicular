@@ -17,9 +17,9 @@ Python 3.7.
 
 ## Tests
 
-To run Andy's tests:
+To run tests:
 
-* `pytest andy_2048.py`
+* `pytest test_andy_2048.py test_nick_2048.py`
 
 ## Example strategy trials
 
