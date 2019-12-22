@@ -8,11 +8,12 @@ from copy import deepcopy
 
 board_width = 4
 
-num_iters = 20
-num_episodes_per_iter = 10
+num_iters = 500
+num_episodes_per_iter = 3
 max_steps_per_episode = 500
 
 discount_rate = 0.95
+epsilon = 0.2
 
 # model takes a board state (a 5x5 array of ints) and ouputs an action in [0,1,2,3]
 model = keras.Sequential([keras.layers.Flatten(),
@@ -35,20 +36,26 @@ for iter_num in range(num_iters):
         rewards_lists.append([])
         grads_lists.append([])
         max_tile_this_ep = 0
-        for _ in range(max_steps_per_episode):
+        for step_num in range(max_steps_per_episode):
             with tf.GradientTape() as tape:
                 action_probs = tf.squeeze(model(state[np.newaxis]), axis=0)
+                ep_prob = min(0.7, (epsilon + 100) / (iter_num + 1))
+                if iter_num % 20 == 0 and episode_num == 0 and step_num == 0:
+                    print("epsilon prob: %s" % ep_prob)
+                if np.random.random() > ep_prob:
+                    dice_roll = tfp.distributions.Multinomial(total_count=1, probs=action_probs).sample(1)
+                else:
+                    dice_roll = tf.one_hot(np.random.randint(4), 4)
                 dice_roll = tfp.distributions.Multinomial(total_count=1, probs=action_probs).sample(1)
                 loss = loss_fn(dice_roll, action_probs)
             grads = tape.gradient(loss, model.trainable_variables)
             grads_lists[-1].append(grads)
-
             action = b.action_space[np.argmax(dice_roll)]
             all_actions.append(action)
             # print(action_probs, dice_roll, action)
             new_state, reward, done = b.step(action)
-            if np.array_equal(new_state, state):  # don't keep trying dud moves
-                break
+            #if np.array_equal(new_state, state):  # don't keep trying dud moves
+            #    break
             state = new_state
 
             rewards_lists[-1].append(reward)
@@ -57,8 +64,10 @@ for iter_num in range(num_iters):
                 break
             max_tile = max(max_tile, reward)
         game_scores.append(np.sum(rewards_lists[-1]))
-    print("%s score, %s max tile, in game iter %s, episode %s" % (
-    game_scores[-1], max_tile_this_ep, iter_num, episode_num))
+        print("ep num %s: %s points" % (episode_num, game_scores[-1]))
+    print(game_scores[-episode_num - 1:])
+    print("%.1f avg score, %s max points per turn, in game iter %s, episode %s" % (
+    np.array(game_scores[-episode_num - 1:]).mean(), max_tile_this_ep, iter_num, episode_num))
 
     # Update the policy based on these rollouts
     # rewards_lists is a list of lists, one list per episode
@@ -92,7 +101,7 @@ if game_scores:
     last_pt = np.array(game_scores[-ten_pct:])
     print("mean reward (first %s, last %s): %.1f, %.1f" % (ten_pct, ten_pct, first_pt.mean(), last_pt.mean()))
     print("std reward: %.1f, %.1f" % (first_pt.std(), last_pt.std()))
-    print("max tile: %s" % max_tile)
+    print("max points in a single turn: %s" % max_tile)
 
     # Plot game_scores over time
     import matplotlib.pyplot as plt
