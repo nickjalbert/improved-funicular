@@ -170,3 +170,12 @@ Move: Down
     4     ·     ·     ·
     8     2     4     ·
 ```
+
+# Using MLflow
+Some of the algorithms (e.g. reinforce.py) use [MLflow](https://mlflow.org/)
+to track experiment runs. By default, MLflow writes experiment metadata to the
+local filesystem. To visualize the results in the MLflow UI, just
+run `mlflow ui` in the terminal and then visit localhost:5000 in your browser.
+
+There you can see the history of runs of the algorithms, including parameters
+and metrics associated with each run.
