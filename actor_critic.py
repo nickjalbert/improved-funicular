@@ -61,15 +61,15 @@ with mlflow.start_run() as run:
             updated_grads = [i * next_q_val for i in p_grads]
             optimizer.apply_gradients(zip(updated_grads, p_model.trainable_variables))
             # get ready to loop
-            #print(state)
-            #print(action)
-            #print(next_state)
-            #print(next_action)
-            #print(q_val)
-            #print(reward)
-            #print(next_q_val)
-            #print(target_q_val)
-            #print()
+            # print(state)
+            # print(action)
+            # print(next_state)
+            # print(next_action)
+            # print(q_val)
+            # print(reward)
+            # print(next_q_val)
+            # print(target_q_val)
+            # print()
             state = next_state
             action = next_action
             game_score += reward
@@ -77,4 +77,3 @@ with mlflow.start_run() as run:
                 break
         print("%s steps in episode %s, score: %s" % (step_num, episode_num, game_score))
         mlflow.log_metric("game scores", game_score)
-

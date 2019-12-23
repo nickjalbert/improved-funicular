@@ -60,8 +60,8 @@ with mlflow.start_run() as run:
                 all_actions.append(action)
                 # print(action_probs, dice_roll, action)
                 new_state, reward, done = b.step(action)
-                #if np.array_equal(new_state, state):  # don't keep trying dud moves
-                #    break
+                # if np.array_equal(new_state, state):  # don't keep trying dud moves
+                #     break
                 state = new_state
 
                 rewards_lists[-1].append(reward)
