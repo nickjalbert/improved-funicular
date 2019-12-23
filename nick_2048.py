@@ -1,11 +1,21 @@
 import random
 
+# self.board is a 1D list that represents the 2D board follows:
+#       [
+#           board[0]   board[1]   board[2]   board[3]
+#           board[4]   board[5]   board[6]   board[7]
+#           board[8]   board[9]  board[10]  board[11]
+#          board[12]  board[13]  board[14]  board[15]
+#       ]
+#
+# TODO: allow for boards of different dimensions
+
 
 class Nick2048:
-    UP = "U"
-    RIGHT = "R"
-    DOWN = "D"
-    LEFT = "L"
+    RIGHT = 0
+    DOWN = 1
+    LEFT = 2
+    UP = 3
 
     def __init__(self):
         self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
@@ -27,6 +37,10 @@ class Nick2048:
         self.score = original_score
         return is_done
 
+    @classmethod
+    def random_direction(cls):
+        return random.choice([cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT])
+
     def get_state(self):
         return self.board, self.score, self.done
 
@@ -34,6 +48,7 @@ class Nick2048:
         self.board = board[:]
 
     def step(self, action):
+        """Returns a 3-tuple of (board, reward for action, boolean is_done)"""
         assert action in self.action_space
         do_action = {
             self.UP: self._do_up,
@@ -43,10 +58,12 @@ class Nick2048:
         }
         old_board = self.board[:]
         self.board = self.board[:]
+        old_score = self.score
         do_action[action]()
         if old_board != self.board:
             self.add_new_random_number()
-        return self.get_state()
+        board, new_score, done = self.get_state()
+        return board, new_score - old_score, done
 
     def reset(self):
         self.board = [0] * 16

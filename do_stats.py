@@ -1,4 +1,3 @@
-import sys
 import statistics
 import random
 from nick_2048 import Nick2048
@@ -17,9 +16,10 @@ def do_trials(cls, strategy, check_done_fn=None):
             assert curr_board == game.board
             move = strategy(curr_board)
             prev_board = curr_board[:]
-            curr_board, score, done = game.step(move)
+            curr_board, reward, done = game.step(move)
             if check_done_fn is not None:
-                done = check_done_fn(prev_board, curr_board, score, done)
+                done = check_done_fn(prev_board, curr_board, reward, done)
+        _, score, _ = game.get_state()
         scores.append(score)
         max_tiles.append(max(game.board))
     print(
@@ -37,7 +37,7 @@ def try_only_go_right(cls):
     def right_fn(board):
         return cls.RIGHT
 
-    def right_done(prev, curr, score, done):
+    def right_done(prev, curr, reward, done):
         return done or prev == curr
 
     right_fn.info = "Strategy only moves right"

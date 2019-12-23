@@ -17,11 +17,19 @@ Python 3.7.
 * `pip install -r requirements.txt`
 * `python play_in_console.py nick` or `python play_in_console.py andy`
 
-## Tests
+## Dev and Testing
 
-To run Andy's tests:
+To automatically format your code, run:
 
-* `pytest andy_2048.py`
+* `black [filename.py]`
+
+To lint, run:
+
+* `./scripts/lint`
+
+To test, run:
+
+* `pytest`
 
 ## Example strategy trials
 

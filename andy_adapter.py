@@ -12,7 +12,7 @@ class Andy2048:
     def from_init_state(cls, init_state):
         andy_wrapper = cls()
         if isinstance(init_state, list) and len(init_state) == 16:
-            init_state =np.array(init_state).reshape((4,4))
+            init_state = np.array(init_state).reshape((4, 4))
         andy_wrapper.andy = BoardEnv.from_init_state(init_state)
         return andy_wrapper
 
@@ -32,11 +32,15 @@ class Andy2048:
         return self.andy.value
 
     def step(self, direction):
-        self.andy.step(direction)
-        return self.board, self.score, self.andy.done
+        _, reward, _ = self.andy.step(direction)
+        return self.board, reward, self.andy.done
 
     def get_state(self):
         return self.board, self.score, self.andy.done
 
     def set_board(self, board):
-        self.andy.state = np.array(board).reshape(4,4)
+        self.andy.state = np.array(board).reshape(4, 4)
+
+    @classmethod
+    def random_direction(cls):
+        return BoardEnv.random_direction()
