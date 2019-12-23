@@ -10,7 +10,7 @@ from copy import deepcopy
 params = {}
 params["board_width"] = 4
 
-params["num_iters"] = 5000
+params["num_iters"] = 2
 params["num_episodes_per_iter"] = 10
 params["max_steps_per_episode"] = 500
 
@@ -39,7 +39,7 @@ with mlflow.start_run() as run:
         ep_prob = min(0.7, (params["epsilon_base"] + 100) / (iter_num + 1))
         if iter_num % 20 == 0:
             print("epsilon prob: %s" % ep_prob)
-        mlflow.log_metric("epsilon_adjusted", ep_prob)
+        mlflow.log_metric("epsilon_adjusted", ep_prob, step=iter_num)
         done = False
         for episode_num in range(params["num_episodes_per_iter"]):
             state = b.reset()
@@ -66,7 +66,7 @@ with mlflow.start_run() as run:
 
                 rewards_lists[-1].append(reward)
                 mlflow.log_metric("rewards in iter %s episode %s" %
-                                  (iter_num, episode_num), reward)
+                                  (iter_num, episode_num), reward, step=step_num)
                 max_tile_this_ep = max(max_tile_this_ep, reward)
                 if done:
                     break
@@ -78,8 +78,8 @@ with mlflow.start_run() as run:
         print(game_scores[-episode_num - 1:])
         print("%.1f avg score, %s max points per turn, in game iter %s, episode %s" % (
             np.array(game_scores[-episode_num - 1:]).mean(), max_tile_this_ep, iter_num, episode_num))
-        mlflow.log_metric("avg game score per_iter", np.array(game_scores[-episode_num - 1:]).mean())
-        mlflow.log_metric("max single_turn points per_iter", max_tile_this_ep)
+        mlflow.log_metric("avg game score per_iter", np.array(game_scores[-episode_num - 1:]).mean(), step=iter_num)
+        mlflow.log_metric("max single_turn points per_iter", max_tile_this_ep, step=iter_num)
 
         # Update the policy based on these rollouts
         # rewards_lists is a list of lists, one list per episode
@@ -122,8 +122,11 @@ with mlflow.start_run() as run:
         plt.rcParams['figure.figsize'] = [10, 5]
 
         plt.plot(game_scores)
+        plt.savefig('raw_game_scores.png')
+        mlflow.log_artifact('raw_game_scores.png')
 
         ysmoothed = gaussian_filter1d(game_scores, sigma=4)
         plt.plot(ysmoothed)
         plt.savefig('smoothed_game_scores.png')
+        mlflow.log_artifact('smoothed_game_scores.png')
         plt.show()
