@@ -53,7 +53,6 @@ with mlflow.start_run() as run:
                         dice_roll = tfp.distributions.Multinomial(total_count=1, probs=action_probs).sample(1)
                     else:
                         dice_roll = tf.one_hot(np.random.randint(4), 4)
-                    dice_roll = tfp.distributions.Multinomial(total_count=1, probs=action_probs).sample(1)
                     loss = loss_fn(dice_roll, action_probs)
                 grads = tape.gradient(loss, model.trainable_variables)
                 grads_lists[-1].append(grads)
