@@ -1,6 +1,7 @@
 import random
 import numpy as np
 from andy_2048 import BoardEnv
+from andy_adapter import Andy2048
 
 
 def test_boardenv_random_direction():
@@ -133,3 +134,11 @@ def test_boardenv_fill_on_move_logic():
     state, reward, done = b.step(BoardEnv.LEFT)
     num_non_zero_spots = (b.state != 0).sum().sum()
     assert num_non_zero_spots == 2, state
+
+
+def test_set_board_makes_copy():
+    init_state = [2, 2, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    game = Andy2048()
+    game.set_board(init_state)
+    assert game.board == init_state
+    assert not (game.board is init_state)

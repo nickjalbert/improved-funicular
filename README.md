@@ -40,56 +40,88 @@ $ python do_stats.py
 
 Running 1000 trials with Nick impl to test each strategy
 
-Strategy only moves right:
+Strategy only moves right (0.27 sec total, 0.00027 sec per trial):
 	Max Tile: 16
-	Max Score: 184
-	Mean Score: 12.896
+	Max Score: 200
+	Mean Score: 13.732
 	Median Score: 4.0
-	Standard Dev: 19.793457630362738
+	Standard Dev: 19.435686813743473
 	Min Score: 0
 
-Random strategy:
+Random strategy (5.56 sec total, 0.00556 sec per trial):
 	Max Tile: 256
-	Max Score: 3024
-	Mean Score: 1081.916
-	Median Score: 1052.0
-	Standard Dev: 510.36060672126024
-	Min Score: 208
+	Max Score: 3144
+	Mean Score: 1078.524
+	Median Score: 1030.0
+	Standard Dev: 532.6747110308239
+	Min Score: 176
 
-Down Left strategy:
+Down Left strategy (48.54 sec total, 0.04854 sec per trial):
 	Max Tile: 512
-	Max Score: 7636
-	Mean Score: 2232.48
-	Median Score: 1966.0
-	Standard Dev: 1178.3934405370308
-	Min Score: 268
+	Max Score: 7584
+	Mean Score: 2294.576
+	Median Score: 2122.0
+	Standard Dev: 1175.9710132686298
+	Min Score: 204
+
+Greedy strategy (58.58 sec total, 0.05858 sec per trial):
+	Max Tile: 1024
+	Max Score: 12504
+	Mean Score: 3091.016
+	Median Score: 2970.0
+	Standard Dev: 1531.7982522609268
+	Min Score: 296
+
+Down left greedy strategy (58.16 sec total, 0.05816 sec per trial):
+	Max Tile: 1024
+	Max Score: 11688
+	Mean Score: 3163.592
+	Median Score: 2940.0
+	Standard Dev: 1543.4928479613075
+	Min Score: 396
 
 
 Running 1000 trials with Andy impl to test each strategy
 
-Strategy only moves right:
+Strategy only moves right (2.79 sec total, 0.00279 sec per trial):
 	Max Tile: 16
-	Max Score: 172.0
-	Mean Score: 13.724
+	Max Score: 136.0
+	Mean Score: 12.948
 	Median Score: 4.0
-	Standard Dev: 21.576407610289653
+	Standard Dev: 18.905732535998776
 	Min Score: 0.0
 
-Random strategy:
+Random strategy (54.43 sec total, 0.05443 sec per trial):
 	Max Tile: 256
 	Max Score: 3268.0
-	Mean Score: 1094.132
-	Median Score: 1062.0
-	Standard Dev: 541.5182883639598
-	Min Score: 120.0
+	Mean Score: 1081.156
+	Median Score: 1060.0
+	Standard Dev: 525.726404050544
+	Min Score: 192.0
 
-Down Left strategy:
+Down Left strategy (632.05 sec total, 0.63205 sec per trial):
 	Max Tile: 512
-	Max Score: 7496.0
-	Mean Score: 2245.812
-	Median Score: 1942.0
-	Standard Dev: 1184.6117497533332
-	Min Score: 188.0
+	Max Score: 7108.0
+	Mean Score: 2162.64
+	Median Score: 1896.0
+	Standard Dev: 1074.8192083930817
+	Min Score: 280.0
+
+Greedy strategy (789.69 sec total, 0.78969 sec per trial):
+	Max Tile: 1024
+	Max Score: 11072.0
+	Mean Score: 2980.308
+	Median Score: 2778.0
+	Standard Dev: 1544.1913353001355
+	Min Score: 348.0
+
+Down left greedy strategy (812.7 sec total, 0.8127 sec per trial):
+	Max Tile: 1024
+	Max Score: 12068.0
+	Mean Score: 3061.82
+	Median Score: 2882.0
+	Standard Dev: 1479.4329026060334
+	Min Score: 576.0
 ```
 
 ## Example gameplay output
@@ -140,3 +172,12 @@ Move: Down
     4     ·     ·     ·
     8     2     4     ·
 ```
+
+# Using MLflow
+Some of the algorithms (e.g. reinforce.py) use [MLflow](https://mlflow.org/)
+to track experiment runs. By default, MLflow writes experiment metadata to the
+local filesystem. To visualize the results in the MLflow UI, just
+run `mlflow ui` in the terminal and then visit localhost:5000 in your browser.
+
+There you can see the history of runs of the algorithms, including parameters
+and metrics associated with each run.
