@@ -4,7 +4,7 @@ import statistics
 from nick_2048 import Nick2048
 from andy_adapter import Andy2048
 
-TRIALS = 1000
+TRIALS = 100
 
 
 def do_trials(cls, strategy, check_done_fn=None):
@@ -164,16 +164,55 @@ def try_max_space_then_greedy(cls):
     do_trials(cls, max_space_then_greedy_fn)
 
 
+def try_lookahead(cls, lookahead_count):
+    possible_actions = [cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT]
+    lookahead_seqs = [(cls.UP,), (cls.DOWN,), (cls.LEFT,), (cls.RIGHT,)]
+    for i in range(lookahead_count - 1):
+        new_lookahead_seqs = []
+        for seq in lookahead_seqs:
+            for action in possible_actions:
+                new_lookahead_seqs.append((seq) + (action,))
+        lookahead_seqs = new_lookahead_seqs
+    print(sorted(lookahead_seqs))
+    # try each lookahead sequence, return the max action
+    def lookahead_fn(board):
+        action_rewards = cls.get_valid_actions_from_board(board)
+        valid_actions = [a for (a, r, b) in action_rewards]
+        test_board = cls()
+        max_score = 0
+        max_actions = set()
+        for sequence in lookahead_seqs:
+            if sequence[0] not in valid_actions:
+                continue
+            test_board.score = 0
+            test_board.set_board(board)
+            for action in sequence:
+                test_board.step(action)
+            if test_board.score > max_score:
+                max_actions = set([sequence[0]])
+                max_score = test_board.score
+            if test_board.score == max_score:
+                max_actions.add(sequence[0])
+        for action in possible_actions:
+            if action in max_actions:
+                return action
+        assert False
+
+    lookahead_fn.info = f"Lookahead {lookahead_count} strategy"
+    do_trials(cls, lookahead_fn)
+
+
 def do_stats():
     print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
     # try_only_go_right(Nick2048)
     # try_random(Nick2048)
-    try_down_left(Nick2048)
+    # try_down_left(Nick2048)
     # try_fixed_action_order(Nick2048)
-    try_greedy(Nick2048)
-    try_greedy_fixed_order(Nick2048)
+    # try_greedy(Nick2048)
+    # try_greedy_fixed_order(Nick2048)
     # try_down_left_greedy(Nick2048)
-    try_max_space_then_greedy(Nick2048)
+    # try_max_space_then_greedy(Nick2048)
+    try_lookahead(Nick2048, 3)
     print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
     # try_only_go_right(Andy2048)
     # try_random(Andy2048)
