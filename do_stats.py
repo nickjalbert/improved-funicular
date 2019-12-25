@@ -107,6 +107,7 @@ def try_greedy(cls):
 def try_greedy_fixed_order(cls):
     ORDER = [cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT]
     random.shuffle(ORDER)
+
     # Greedy, break ties in a fixed order
     def greedy_fixed_order_fn(board):
         actions = Nick2048.get_valid_actions_by_reward_from_board(board)
@@ -164,16 +165,22 @@ def try_max_space_then_greedy(cls):
     do_trials(cls, max_space_then_greedy_fn)
 
 
-def try_lookahead(cls, lookahead_count):
-    possible_actions = [cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT]
+def _get_lookahead_seqs(cls, action_space, lookahead_count):
     lookahead_seqs = [(cls.UP,), (cls.DOWN,), (cls.LEFT,), (cls.RIGHT,)]
     for i in range(lookahead_count - 1):
         new_lookahead_seqs = []
         for seq in lookahead_seqs:
-            for action in possible_actions:
+            for action in action_space:
                 new_lookahead_seqs.append((seq) + (action,))
         lookahead_seqs = new_lookahead_seqs
-    print(sorted(lookahead_seqs))
+    return lookahead_seqs
+
+
+def get_lookahead_fn(cls, lookahead_count):
+    """Returns a function that takes a board and returns a suggested action."""
+    action_space = [cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT]
+    lookahead_seqs = _get_lookahead_seqs(cls, action_space, lookahead_count)
+
     # try each lookahead sequence, return the max action
     def lookahead_fn(board):
         action_rewards = cls.get_valid_actions_from_board(board)
@@ -193,29 +200,34 @@ def try_lookahead(cls, lookahead_count):
                 max_score = test_board.score
             if test_board.score == max_score:
                 max_actions.add(sequence[0])
-        for action in possible_actions:
+        for action in action_space:
             if action in max_actions:
                 return action
         assert False
 
+    return lookahead_fn
+
+
+def try_lookahead(cls, lookahead_count):
+    lookahead_fn = get_lookahead_fn(cls, lookahead_count)
     lookahead_fn.info = f"Lookahead {lookahead_count} strategy"
     do_trials(cls, lookahead_fn)
 
 
 def do_stats():
     print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
-    # try_only_go_right(Nick2048)
-    # try_random(Nick2048)
-    # try_down_left(Nick2048)
-    # try_fixed_action_order(Nick2048)
-    # try_greedy(Nick2048)
-    # try_greedy_fixed_order(Nick2048)
-    # try_down_left_greedy(Nick2048)
-    # try_max_space_then_greedy(Nick2048)
-    try_lookahead(Nick2048, 3)
+    try_only_go_right(Nick2048)
+    try_random(Nick2048)
+    try_down_left(Nick2048)
+    try_fixed_action_order(Nick2048)
+    try_greedy(Nick2048)
+    try_greedy_fixed_order(Nick2048)
+    try_down_left_greedy(Nick2048)
+    try_max_space_then_greedy(Nick2048)
+    try_lookahead(Nick2048, 2)
     print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
-    # try_only_go_right(Andy2048)
-    # try_random(Andy2048)
+    try_only_go_right(Andy2048)
+    try_random(Andy2048)
     # try_down_left(Andy2048)
     # try_greedy(Andy2048)
     # try_down_left_greedy(Andy2048)
