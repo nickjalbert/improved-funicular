@@ -224,7 +224,7 @@ def do_stats():
     try_greedy_fixed_order(Nick2048)
     try_down_left_greedy(Nick2048)
     try_max_space_then_greedy(Nick2048)
-    try_lookahead(Nick2048, 2)
+    try_lookahead(Nick2048, 3)
     print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
     try_only_go_right(Andy2048)
     try_random(Andy2048)
