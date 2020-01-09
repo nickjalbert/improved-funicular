@@ -215,9 +215,11 @@ def try_lookahead(cls, lookahead_count):
     lookahead_fn.info = f"Lookahead {lookahead_count} strategy"
     do_trials(cls, lookahead_fn)
 
+
 # globals so that we'll keep value function state across training rollouts
 n = defaultdict(int)  # tuple(board), action -> count of visits
 sum_ret = defaultdict(int)  # tuple(board), action -> expected return val
+
 
 def try_mcts(cls):
     action_space = cls().action_space
@@ -260,7 +262,9 @@ def try_mcts(cls):
             returns[-1] = rewards[-1]
             for i in range(len(rewards) - 2, -1, -1):
                 n[(tuple(states[i]), actions[i])] += 1
-                sum_ret[(tuple(states[i]), actions[i])] += rewards[i] + discount_rate * returns[i + 1]
+                sum_ret[(tuple(states[i]), actions[i])] += (
+                    rewards[i] + discount_rate * returns[i + 1]
+                )
 
     def mcts_fn(board):
         return next_action(board)
@@ -270,18 +274,19 @@ def try_mcts(cls):
         train_mcts(10000)
         do_trials(cls, mcts_fn)
 
+
 def do_stats():
     print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
     try_only_go_right(Nick2048)
     try_random(Nick2048)
-    #try_down_left(Nick2048)
-    #try_fixed_action_order(Nick2048)
-    #try_greedy(Nick2048)
-    #try_greedy_fixed_order(Nick2048)
+    # try_down_left(Nick2048)
+    # try_fixed_action_order(Nick2048)
+    # try_greedy(Nick2048)
+    # try_greedy_fixed_order(Nick2048)
     try_down_left_greedy(Nick2048)
-    #try_max_space_then_greedy(Nick2048)
+    # try_max_space_then_greedy(Nick2048)
     try_lookahead(Nick2048, 2)
-    #try_mcts(Nick2048)
+    # try_mcts(Nick2048)
     print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
     try_only_go_right(Andy2048)
     try_random(Andy2048)
