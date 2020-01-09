@@ -1,13 +1,30 @@
+import random
+
+
 class Base2048:
+    @classmethod
+    def get_valid_actions_from_board(cls, board):
+        test_game = cls()
+        test_game.set_board(board)
+        return test_game.get_valid_actions()
+
+    @classmethod
+    def get_valid_actions_by_reward_from_board(cls, board):
+        test_game = cls()
+        test_game.set_board(board)
+        return test_game.get_valid_actions_by_reward()
+
     def get_valid_actions(self):
-        """Returns list of 2-tuples: [(action, reward),...]"""
+        """Returns list of 3-tuples: [(action, reward, board),...]"""
         test_game = self.__class__()
         valid_actions = []
-        for action in [self.UP, self.DOWN, self.LEFT, self.RIGHT]:
+        all_actions = [self.UP, self.DOWN, self.LEFT, self.RIGHT]
+        random.shuffle(all_actions)
+        for action in all_actions:
             test_game.set_board(self.board)
             board, reward, _ = test_game.step(action)
             if board != self.board:
-                valid_actions.append((action, reward))
+                valid_actions.append((action, reward, board))
         return valid_actions
 
     def get_valid_actions_by_reward(self):

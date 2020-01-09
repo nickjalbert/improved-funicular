@@ -19,12 +19,20 @@ params["learning_rate"] = 0.01
 
 with mlflow.start_run() as run:
     mlflow.log_params(params)
-    p_model = keras.Sequential([keras.layers.Flatten(),
-                                keras.layers.Dense(10, activation="relu"),
-                                keras.layers.Dense(4, activation="softmax")])
-    q_model = keras.Sequential([keras.layers.Flatten(),
-                                keras.layers.Dense(10, activation="relu"),
-                                keras.layers.Dense(4)])
+    p_model = keras.Sequential(
+        [
+            keras.layers.Flatten(),
+            keras.layers.Dense(10, activation="relu"),
+            keras.layers.Dense(4, activation="softmax"),
+        ]
+    )
+    q_model = keras.Sequential(
+        [
+            keras.layers.Flatten(),
+            keras.layers.Dense(10, activation="relu"),
+            keras.layers.Dense(4),
+        ]
+    )
     q_model.build(input_shape=(1, 16))
     optimizer = keras.optimizers.Adam(lr=params["learning_rate"])
     p_loss_fn = keras.losses.CategoricalCrossentropy()
@@ -34,7 +42,9 @@ with mlflow.start_run() as run:
     for episode_num in range(params["num_episodes"]):
         state = b.reset()
         action_probs = tf.squeeze(p_model(state[np.newaxis]), axis=0)
-        dice_roll = tfp.distributions.Multinomial(total_count=1, probs=action_probs).sample(1)
+        dice_roll = tfp.distributions.Multinomial(
+            total_count=1, probs=action_probs
+        ).sample(1)
         action = b.action_space[np.argmax(dice_roll)]
         game_score = 0
         for step_num in range(params["max_steps_per_episode"]):
@@ -45,7 +55,9 @@ with mlflow.start_run() as run:
             # compute a' and grad log pi(a'|s')
             with tf.GradientTape() as p_tape:
                 action_probs = tf.squeeze(p_model(next_state[np.newaxis]), axis=0)
-                dice_roll = tfp.distributions.Multinomial(total_count=1, probs=action_probs).sample(1)
+                dice_roll = tfp.distributions.Multinomial(
+                    total_count=1, probs=action_probs
+                ).sample(1)
                 p_loss = p_loss_fn(dice_roll, action_probs)
             p_grads = p_tape.gradient(p_loss, p_model.trainable_variables)
             next_action = b.action_space[np.argmax(dice_roll)]
@@ -53,7 +65,9 @@ with mlflow.start_run() as run:
             with tf.GradientTape() as q_tape:
                 q_val = tf.squeeze(q_model(state[np.newaxis]))[action]
                 next_q_val = tf.squeeze(q_model(next_state[np.newaxis]))[next_action]
-                target_q_val = reward + (1 - done) * params["q_discount_rate"] * next_q_val
+                target_q_val = (
+                    reward + (1 - done) * params["q_discount_rate"] * next_q_val
+                )
                 q_loss_fn = tf.math.square(q_val - target_q_val)
             q_grads = q_tape.gradient(q_loss_fn, q_model.trainable_variables)
             optimizer.apply_gradients(zip(q_grads, q_model.trainable_variables))
