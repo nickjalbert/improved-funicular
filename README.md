@@ -33,7 +33,7 @@ To test, run:
 
 ## Example strategy trials
 
-Use the `do_stats.py` to try different 2048 game strategies.  Run:
+Use `do_stats.py` to try different 2048 game strategies.  Run:
 
 ```python do_stats.py```
 
