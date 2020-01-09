@@ -1,3 +1,4 @@
+import sys
 import time
 import random
 from collections import defaultdict
@@ -6,14 +7,12 @@ import statistics
 from nick_2048 import Nick2048
 from andy_adapter import Andy2048
 
-TRIALS = 100
 
-
-def do_trials(cls, strategy, check_done_fn=None):
+def do_trials(cls, trial_count, strategy, check_done_fn=None):
     start_time = time.time()
     scores = []
     max_tiles = []
-    for i in range(TRIALS):
+    for i in range(trial_count):
         game = cls()
         curr_board, score, done = game.get_state()
         while not done:
@@ -27,7 +26,7 @@ def do_trials(cls, strategy, check_done_fn=None):
         scores.append(score)
         max_tiles.append(max(game.board))
     elapsed = time.time() - start_time
-    elapsed_per_trial = elapsed / TRIALS
+    elapsed_per_trial = elapsed / trial_count
     elapsed = round(elapsed, 2)
     elapsed_per_trial = round(elapsed_per_trial, 5)
     print(
@@ -42,7 +41,7 @@ def do_trials(cls, strategy, check_done_fn=None):
     )
 
 
-def try_only_go_right(cls):
+def try_only_go_right(cls, trial_count):
     def right_fn(board):
         return cls.RIGHT
 
@@ -50,19 +49,19 @@ def try_only_go_right(cls):
         return done or prev == curr
 
     right_fn.info = "Strategy only moves right"
-    do_trials(cls, right_fn, right_done)
+    do_trials(cls, trial_count, right_fn, right_done)
 
 
-def try_random(cls):
+def try_random(cls, trial_count):
     def random_fn(board):
         choices = [cls.UP, cls.RIGHT, cls.DOWN, cls.LEFT]
         return random.choice(choices)
 
     random_fn.info = "Random strategy"
-    do_trials(cls, random_fn)
+    do_trials(cls, trial_count, random_fn)
 
 
-def try_down_left(cls):
+def try_down_left(cls, trial_count):
     def down_left_fn(board):
         action_rewards = Nick2048.get_valid_actions_from_board(board)
         valid_actions = [a for (a, r, b) in action_rewards]
@@ -76,10 +75,10 @@ def try_down_left(cls):
         assert False, "should be able to do something"
 
     down_left_fn.info = "Down Left strategy"
-    do_trials(cls, down_left_fn)
+    do_trials(cls, trial_count, down_left_fn)
 
 
-def try_fixed_action_order(cls):
+def try_fixed_action_order(cls, trial_count):
     # Always choose actions in a particular order if they are valid
     def fixed_fn(board):
         ACTION_ORDER = [cls.DOWN, cls.LEFT, cls.UP, cls.RIGHT]
@@ -92,10 +91,10 @@ def try_fixed_action_order(cls):
         assert False, "Could not find action"
 
     fixed_fn.info = "Fixed order strategy"
-    do_trials(cls, fixed_fn)
+    do_trials(cls, trial_count, fixed_fn)
 
 
-def try_greedy(cls):
+def try_greedy(cls, trial_count):
     # Greedy, break ties randomly
     def greedy_fn(board):
         actions = Nick2048.get_valid_actions_by_reward_from_board(board)
@@ -103,10 +102,10 @@ def try_greedy(cls):
         return actions[0][0]
 
     greedy_fn.info = "Greedy strategy"
-    do_trials(cls, greedy_fn)
+    do_trials(cls, trial_count, greedy_fn)
 
 
-def try_greedy_fixed_order(cls):
+def try_greedy_fixed_order(cls, trial_count):
     ORDER = [cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT]
     random.shuffle(ORDER)
 
@@ -122,10 +121,10 @@ def try_greedy_fixed_order(cls):
         assert False
 
     greedy_fixed_order_fn.info = "Greedy strategy with fixed preference"
-    do_trials(cls, greedy_fixed_order_fn)
+    do_trials(cls, trial_count, greedy_fixed_order_fn)
 
 
-def try_down_left_greedy(cls):
+def try_down_left_greedy(cls, trial_count):
     # pick best of {down, left} if available, otherwise best of {up, right}
     def down_left_greedy_fn(board):
         actions = Nick2048.get_valid_actions_by_reward_from_board(board)
@@ -136,10 +135,10 @@ def try_down_left_greedy(cls):
         return actions[0][0]
 
     down_left_greedy_fn.info = "Down left greedy strategy"
-    do_trials(cls, down_left_greedy_fn)
+    do_trials(cls, trial_count, down_left_greedy_fn)
 
 
-def try_max_space_then_greedy(cls):
+def try_max_space_then_greedy(cls, trial_count):
     def max_space_then_greedy_fn(board):
         actions = Nick2048.get_valid_actions_from_board(board)
         assert len(actions) > 0, "No actions available"
@@ -164,7 +163,7 @@ def try_max_space_then_greedy(cls):
         assert False
 
     max_space_then_greedy_fn.info = "Max space then greedy"
-    do_trials(cls, max_space_then_greedy_fn)
+    do_trials(cls, trial_count, max_space_then_greedy_fn)
 
 
 def _get_lookahead_seqs(cls, action_space, lookahead_count):
@@ -210,10 +209,10 @@ def get_lookahead_fn(cls, lookahead_count):
     return lookahead_fn
 
 
-def try_lookahead(cls, lookahead_count):
+def try_lookahead(cls, trial_count, lookahead_count):
     lookahead_fn = get_lookahead_fn(cls, lookahead_count)
     lookahead_fn.info = f"Lookahead {lookahead_count} strategy"
-    do_trials(cls, lookahead_fn)
+    do_trials(cls, trial_count, lookahead_fn)
 
 
 # globals so that we'll keep value function state across training rollouts
@@ -252,7 +251,7 @@ def train_mcts(cls, next_action, num_rollouts=100000):
             )
 
 
-def try_mcts(cls):
+def try_mcts(cls, trial_count):
     action_space = cls().action_space
 
     def q(s, a):
@@ -273,28 +272,99 @@ def try_mcts(cls):
     mcts_fn.info = "MCTS strategy"
     for _ in range(10):
         train_mcts(cls, next_action, 10000)
-        do_trials(cls, mcts_fn)
+        do_trials(cls, trial_count, mcts_fn)
 
 
-def do_stats():
-    print(f"\nRunning {TRIALS} trials with Nick impl to test each strategy\n")
-    try_only_go_right(Nick2048)
-    try_random(Nick2048)
-    # try_down_left(Nick2048)
-    # try_fixed_action_order(Nick2048)
-    # try_greedy(Nick2048)
-    # try_greedy_fixed_order(Nick2048)
-    try_down_left_greedy(Nick2048)
-    # try_max_space_then_greedy(Nick2048)
-    try_lookahead(Nick2048, 3)
-    try_mcts(Nick2048)
-    print(f"\nRunning {TRIALS} trials with Andy impl to test each strategy\n")
-    try_only_go_right(Andy2048)
-    try_random(Andy2048)
-    # try_down_left(Andy2048)
-    # try_greedy(Andy2048)
-    # try_down_left_greedy(Andy2048)
+def print_usage(impls, strats):
+    print()
+    print("Usage:")
+    print(f"\tpython {sys.argv[0]} [implementation] [trial_count] [strategy]")
+    print()
+    print("Example:")
+    impl = random.choice(list(impls.keys()))
+    strat = random.choice(list(strats.keys()))
+    print(f"\tpython {sys.argv[0]} {impl} 100 {strat}")
+    print()
+    print()
+
+    print(f"[implementation] is one of:")
+    for key, (cls, desc) in impls.items():
+        print(f"\t{key} - {desc}")
+    print()
+
+    print(f"[strategy] is one of:")
+    for key, (cls, desc) in strats.items():
+        print(f"\t{key} - {desc}")
+    print()
 
 
 if __name__ == "__main__":
-    do_stats()
+    impls = {
+        "nick": (Nick2048, "Nick's implemenation of 2048"),
+        "andy": (Andy2048, "Andy's implementation of 2048"),
+    }
+    lookahead_str = "A Monte Carlo tree search variant with depth limited to {}."
+    strats = {
+        "only_go_right": (
+            try_only_go_right,
+            "Only go right, " "end when board stops changing",
+        ),
+        "random": (try_random, "Try random moves until game over"),
+        "down_left": (
+            try_down_left,
+            "Only go down or left "
+            "until you get stuck, then randomly go up or right once",
+        ),
+        "fixed_action_order": (
+            try_fixed_action_order,
+            "Always choose actions in a fixed order if they are valid "
+            "(Down > Left > Up > Right)",
+        ),
+        "greedy": (
+            try_greedy,
+            "Choose action that results in best score, tiebreak randomly",
+        ),
+        "greedy_fixed_order": (
+            try_greedy_fixed_order,
+            "Choose action that results in best score, fixed order tiebreak "
+            "(Up > Down > Left > Right)",
+        ),
+        "down_left_greedy": (
+            try_down_left_greedy,
+            "Pick best of {down, left} if allowed, else best of {up, right}",
+        ),
+        "max_space_then_greedy": (
+            try_max_space_then_greedy,
+            "Pick moves greedily with respect to free space on board, "
+            "tiebreak by being greedy w.r.t. score",
+        ),
+        "lookahead_1": (
+            lambda i, t: try_lookahead(i, t, 1),
+            "Should be equivalent to greedy; picks move with best score",
+        ),
+        "lookahead_2": (lambda i, t: try_lookahead(i, t, 2), lookahead_str.format(2)),
+        "lookahead_3": (lambda i, t: try_lookahead(i, t, 3), lookahead_str.format(3)),
+        "lookahead_4": (lambda i, t: try_lookahead(i, t, 4), lookahead_str.format(4)),
+        "lookahead_5": (lambda i, t: try_lookahead(i, t, 5), lookahead_str.format(5)),
+        "mcts": (try_mcts, "Classic Monte Carlo tree search algorithm"),
+    }
+
+    if len(sys.argv) != 4:
+        print_usage(impls, strats)
+        sys.exit(0)
+
+    impl_name = sys.argv[1]
+    trial_count = int(sys.argv[2])
+    strat_name = sys.argv[3]
+
+    if impl_name not in impls or strat_name not in strats:
+        print_usage(impls, strats)
+        sys.exit(0)
+
+    print(
+        f"\nRunning {trial_count} trials with {impl_name}'s impl to test {strat_name}\n"
+    )
+
+    implementation = impls[impl_name][0]
+    strategy = strats[strat_name][0]
+    strategy(implementation, trial_count)
