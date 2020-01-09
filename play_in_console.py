@@ -2,7 +2,7 @@ import sys
 import readchar
 from nick_2048 import Nick2048
 from andy_adapter import Andy2048
-from do_stats import get_lookahead_fn
+from strategies.lookahead import get_lookahead_fn
 
 
 def run_manual_loop(game, lookahead_fn=None):
