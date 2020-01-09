@@ -13,6 +13,7 @@ from base_2048 import Base2048
 
 
 class Nick2048(Base2048):
+    info = "Nick's implementation of 2048"
     RIGHT = 0
     DOWN = 1
     LEFT = 2

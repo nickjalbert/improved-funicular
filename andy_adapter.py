@@ -4,6 +4,7 @@ import numpy as np
 
 
 class Andy2048(Base2048):
+    info = "Andy's implementation of 2048"
     UP = BoardEnv.UP
     RIGHT = BoardEnv.RIGHT
     DOWN = BoardEnv.DOWN
