@@ -33,6 +33,10 @@ class Andy2048(Base2048):
     def score(self):
         return self.andy.value
 
+    @property
+    def action_space(self):
+        return self.andy.action_space
+
     def step(self, direction):
         _, reward, _ = self.andy.step(direction)
         return self.board, reward, self.andy.done
