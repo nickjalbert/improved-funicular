@@ -2,15 +2,12 @@ import time
 import statistics
 
 
-def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None):
+def do_trials(cls, trial_count, strategy, check_done_fn=None):
     start_time = time.time()
     scores = []
     max_tiles = []
     for i in range(trial_count):
-        if init_board:
-            game = cls(init_board.copy())
-        else:
-            game = cls()
+        game = cls()
         curr_board, score, done = game.get_state()
         while not done:
             assert curr_board == game.board
