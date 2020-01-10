@@ -22,10 +22,10 @@ def train_mcts_dynamic(cls,
         else:
             prob_rand_action = min(1, 10 * epsilon / (rollout_num-num_rollouts_full_random + 1))
         #print("prob of rand action: %s" % prob_rand_action)
+        game = cls()
         if init_board:
-            game = cls(init_board=init_board, init_score=0)
-        else:
-            game = cls()
+            game.score = 0
+            game.set_board(init_board)
         curr_board, score, done = game.get_state()
         states, actions, rewards, is_duplicate = [], [], [], []
         state_action_pairs = set()
