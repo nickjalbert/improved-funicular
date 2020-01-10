@@ -4,6 +4,18 @@
 
 Python 3 implementation of the [2048 game](https://play2048.co/).
 
+## Performance
+
+Here's how various 2048 strategies perform
+(based on playing 100 games using Nick's
+implementation with the named strategy,
+tested on a 2012 macbook air with 1.8GHz i5 and 4GB of 1600MHz DDR3 RAM):
+
+| Strategy      | Max observed tile | Mean Score    | Score Standard Dev | Avg steps per game | Avg sec per game |
+| ------------- | ----------------- | ------------- | ------------------ |------------------- | ---------------- |
+| Random        | 256               | 1058          | 504                | 138                | .006 sec         |
+
+
 ## Setup
 
 Developed under Python 3.7 on OS X Catalina with pip and virtualenv installed
