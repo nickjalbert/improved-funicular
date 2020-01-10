@@ -2,12 +2,15 @@ import time
 import statistics
 
 
-def do_trials(cls, trial_count, strategy, check_done_fn=None):
+def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None):
     start_time = time.time()
     scores = []
     max_tiles = []
     for i in range(trial_count):
-        game = cls()
+        if init_board:
+            game = cls(init_board.copy())
+        else:
+            game = cls()
         curr_board, score, done = game.get_state()
         while not done:
             assert curr_board == game.board
@@ -33,3 +36,9 @@ def do_trials(cls, trial_count, strategy, check_done_fn=None):
         f"\tStandard Dev: {statistics.stdev(scores)}\n"
         f"\tMin Score: {min(scores)}\n"
     )
+    return {"Max Tile": max(max_tiles),
+            "Max Score": max(scores),
+            "Mean Score": statistics.mean(scores),
+            "Median Score": statistics.median(scores),
+            "Standard Dev": statistics.stdev(scores),
+            "Min Score": min(scores)}

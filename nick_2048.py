@@ -19,9 +19,9 @@ class Nick2048(Base2048):
     LEFT = 2
     UP = 3
 
-    def __init__(self):
+    def __init__(self, init_board=None, init_score=0):
         self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
-        self.reset()
+        self.reset(init_board=init_board, init_score=init_score)
 
     @property
     def done(self):
@@ -82,11 +82,14 @@ class Nick2048(Base2048):
         board, new_score, done = self.get_state()
         return board, new_score - old_score, done
 
-    def reset(self):
-        self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        self.add_new_random_number()
-        self.add_new_random_number()
-        self.score = 0
+    def reset(self, init_board=None, init_score=0):
+        if init_board:
+            self.board = init_board.copy()
+        else:
+            self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            self.add_new_random_number()
+            self.add_new_random_number()
+        self.score = init_score
 
     def add_new_random_number(self):
         self._set_random_position(2 if random.random() <= 0.9 else 4)
