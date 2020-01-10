@@ -57,21 +57,21 @@ def train_mcts_dynamic(cls,
                 sum_ret[(tuple(states[i]), actions[i])] += returns[i]
         num_revisits += num_revisits_this_rollout
 
-        if rollout_num % 50 == 0:
+        #if rollout_num % 50 == 0:
             #print("== End of training rollout %s ==" % rollout_num)
             #print("epsilon based prob: %0.2f" % prob_rand_action)
             #print("len of sum_ret dict: %s" % len(sum_ret))
             #print("total num states-action pairs revisited: %s" % num_revisits)
             #print("%% state-action pairs in this rollout seen already: %.2f%%" % (num_revisits_this_rollout / step_num * 100.0))
 
-            mlflow.log_metric("num_steps", len(rewards), step=rollout_num)
-            mlflow.log_metric("game_score", sum(rewards), step=rollout_num)
-            mlflow.log_metric("prob random action", prob_rand_action, step=rollout_num)
-            mlflow.log_metric("len sum_ret dict", len(sum_ret), step=rollout_num)
-            mlflow.log_metric("total num states-action pairs revisited", num_revisits, step=rollout_num)
-            mlflow.log_metric("percent state-action pairs in this rollout seen already",
-                              num_revisits_this_rollout / step_num * 100.0,
-                              step=rollout_num)
+            #mlflow.log_metric("num_steps", len(rewards), step=rollout_num)
+            #mlflow.log_metric("game_score", sum(rewards), step=rollout_num)
+            #mlflow.log_metric("prob random action", prob_rand_action, step=rollout_num)
+            #mlflow.log_metric("len sum_ret dict", len(sum_ret), step=rollout_num)
+            #mlflow.log_metric("total num states-action pairs revisited", num_revisits, step=rollout_num)
+            #mlflow.log_metric("percent state-action pairs in this rollout seen already",
+            #                  num_revisits_this_rollout / step_num * 100.0,
+            #                  step=rollout_num)
 
 # From https://stackoverflow.com/questions/34968722/how-to-implement-the-softmax-function-in-python
 def softmax(x):
@@ -104,16 +104,16 @@ def get_strategy_function(cls, epsilon, rollouts_per_move):
                            discount_rate=0.2,
                            num_rollouts=rollouts_per_move,
                            init_board=board)
-        print("finished training our value function. Here are the results for 4 actions given our current state:")
+        #print("finished training our value function. Here are the results for 4 actions given our current state:")
         for i in range(4):
-            print(f"n(board, %s): %s" % (["R","D","L","U"][i], n[(tuple(board), i)]))
-            print(f"sum_ret: %s" % sum_ret[(tuple(board), i)])
+            #print(f"n(board, %s): %s" % (["R","D","L","U"][i], n[(tuple(board), i)]))
+            #print(f"sum_ret: %s" % sum_ret[(tuple(board), i)])
             if n[(tuple(board), i)]:
                 avg_sum_ret = (sum_ret[(tuple(board), i)] / n[(tuple(board), i)])
             else:
                 avg_sum_ret = 0
-            print(f"avg sum_ret: %s" % avg_sum_ret)
-            print("--")
+            #print(f"avg sum_ret: %s" % avg_sum_ret)
+            #print("--")
         return policy_fn(board, n, sum_ret)
 
     return strategy_fn
