@@ -1,5 +1,5 @@
-from base_2048 import Base2048
-from andy_2048 import BoardEnv
+from envs.base_2048 import Base2048
+from envs.andy_2048 import BoardEnv
 import numpy as np
 
 
@@ -38,8 +38,8 @@ class Andy2048(Base2048):
         return self.andy.action_space
 
     def step(self, direction):
-        _, reward, _ = self.andy.step(direction)
-        return self.board, reward, self.andy.done
+        _, reward, _, c = self.andy.step(direction)
+        return self.board, reward, self.andy.done, c
 
     def get_state(self):
         return self.board, self.score, self.andy.done

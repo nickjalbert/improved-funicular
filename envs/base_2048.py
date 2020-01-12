@@ -1,7 +1,7 @@
+import gym
 import random
 
-
-class Base2048:
+class Base2048(gym.Env):
     @classmethod
     def get_valid_actions_from_board(cls, board):
         test_game = cls()
@@ -22,7 +22,7 @@ class Base2048:
         random.shuffle(all_actions)
         for action in all_actions:
             test_game.set_board(self.board)
-            board, reward, _ = test_game.step(action)
+            board, reward, _, _= test_game.step(action)
             if board != self.board:
                 valid_actions.append((action, reward, board))
         return valid_actions

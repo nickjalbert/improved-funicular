@@ -13,7 +13,7 @@ from strategies.lookahead import try_lookahead
 from strategies.mcts import try_mcts
 from strategies.mcts_dynamic import try_mcts_dynamic
 
-from nick_2048 import Nick2048
+from envs.nick_2048 import Nick2048
 from andy_adapter import Andy2048
 
 IMPLEMENTATIONS = {

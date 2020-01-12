@@ -1,4 +1,4 @@
-from nick_2048 import Nick2048
+from envs.nick_2048 import Nick2048
 from do_stats import STRATEGIES, IMPLEMENTATIONS
 from strategies.random import try_random
 
