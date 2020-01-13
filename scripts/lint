@@ -2,4 +2,4 @@
 
 set -eu
 
-flake8 . --exclude=./improved-funicular/ --count --max-complexity=10 --max-line-length=127 --statistics
+flake8 . --exclude=./improved-funicular/,etc/squash_lookup_table.py --count --max-line-length=127 --statistics
