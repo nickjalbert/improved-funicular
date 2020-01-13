@@ -1,5 +1,6 @@
 import random
 from base_2048 import Base2048
+from etc.squash_lookup_table import squash_lookup
 
 # self.board is a 1D list that represents the 2D board follows:
 #       [
@@ -25,7 +26,7 @@ class Nick2048(Base2048):
 
     @property
     def done(self):
-        if len([v for v in self.board if v == 0]) > 0:
+        if len(self.empty_indexes) > 0:
             return False
         # board is full, so just check neighbors to see if we can squish
         check_indices = {
@@ -63,7 +64,8 @@ class Nick2048(Base2048):
     def set_board(self, board):
         # Copy board as we set so we don't get surprising aliasing errors
         assert len(board) == 16
-        self.board = board[:]
+        self.empty_indexes = [i for (i, v) in enumerate(board) if v == 0]
+        self.board = tuple(board)
 
     def step(self, action):
         """Returns a 3-tuple of (board, reward for action, boolean is_done)"""
@@ -74,7 +76,7 @@ class Nick2048(Base2048):
             self.DOWN: self._do_down,
             self.LEFT: self._do_left,
         }
-        old_board = self.board[:]
+        old_board = self.board
         old_score = self.score
         do_action[action]()
         if old_board != self.board:
@@ -83,62 +85,63 @@ class Nick2048(Base2048):
         return board, new_score - old_score, done
 
     def reset(self):
-        self.board = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.set_board((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
         self.add_new_random_number()
         self.add_new_random_number()
         self.score = 0
 
     def add_new_random_number(self):
-        self._set_random_position(2 if random.random() <= 0.9 else 4)
+        return self._set_random_position(2 if random.random() <= 0.9 else 4)
 
     def _set_random_position(self, value):
-        idxs = [i for i, val in enumerate(self.board) if val == 0]
-        if not idxs:
-            return 0
-        idx = random.choice(idxs)
-        self.board[idx] = value
+        try:
+            idx = random.choice(self.empty_indexes)
+        except IndexError:
+            return -1
+        board = self.board[:idx] + (value,) + self.board[idx + 1:]
+        self.set_board(board)
         return idx
 
     def _do_up(self):
-        self._smush_by_index([0, 4, 8, 12])
-        self._smush_by_index([1, 5, 9, 13])
-        self._smush_by_index([2, 6, 10, 14])
-        self._smush_by_index([3, 7, 11, 15])
+        sq1, r1 = squash_lookup[(self.board[0], self.board[4], self.board[8], self.board[12])]
+        sq2, r2 = squash_lookup[(self.board[1], self.board[5], self.board[9], self.board[13])]
+        sq3, r3 = squash_lookup[(self.board[2], self.board[6], self.board[10], self.board[14])]
+        sq4, r4 = squash_lookup[(self.board[3], self.board[7], self.board[11], self.board[15])]
+        self.set_board((sq1[0], sq2[0], sq3[0], sq4[0],
+                        sq1[1], sq2[1], sq3[1], sq4[1],
+                        sq1[2], sq2[2], sq3[2], sq4[2],
+                        sq1[3], sq2[3], sq3[3], sq4[3]))
+        self.score += r1 + r2 + r3 + r4
 
     def _do_right(self):
-        self._smush_by_index([3, 2, 1, 0])
-        self._smush_by_index([7, 6, 5, 4])
-        self._smush_by_index([11, 10, 9, 8])
-        self._smush_by_index([15, 14, 13, 12])
+        sq1, r1 = squash_lookup[(self.board[3], self.board[2], self.board[1], self.board[0])]
+        sq2, r2 = squash_lookup[(self.board[7], self.board[6], self.board[5], self.board[4])]
+        sq3, r3 = squash_lookup[(self.board[11], self.board[10], self.board[9], self.board[8])]
+        sq4, r4 = squash_lookup[(self.board[15], self.board[14], self.board[13], self.board[12])]
+        self.set_board((sq1[3], sq1[2], sq1[1], sq1[0],
+                        sq2[3], sq2[2], sq2[1], sq2[0],
+                        sq3[3], sq3[2], sq3[1], sq3[0],
+                        sq4[3], sq4[2], sq4[1], sq4[0]))
+        self.score += r1 + r2 + r3 + r4
 
     def _do_down(self):
-        self._smush_by_index([12, 8, 4, 0])
-        self._smush_by_index([13, 9, 5, 1])
-        self._smush_by_index([14, 10, 6, 2])
-        self._smush_by_index([15, 11, 7, 3])
+        sq1, r1 = squash_lookup[(self.board[12], self.board[8], self.board[4], self.board[0])]
+        sq2, r2 = squash_lookup[(self.board[13], self.board[9], self.board[5], self.board[1])]
+        sq3, r3 = squash_lookup[(self.board[14], self.board[10], self.board[6], self.board[2])]
+        sq4, r4 = squash_lookup[(self.board[15], self.board[11], self.board[7], self.board[3])]
+        self.set_board((sq1[3], sq2[3], sq3[3], sq4[3],
+                        sq1[2], sq2[2], sq3[2], sq4[2],
+                        sq1[1], sq2[1], sq3[1], sq4[1],
+                        sq1[0], sq2[0], sq3[0], sq4[0]))
+        self.score += r1 + r2 + r3 + r4
 
     def _do_left(self):
-        self._smush_by_index([0, 1, 2, 3])
-        self._smush_by_index([4, 5, 6, 7])
-        self._smush_by_index([8, 9, 10, 11])
-        self._smush_by_index([12, 13, 14, 15])
-
-    def _smush_by_index(self, idxs):
-        smushed = self._smush_left([self.board[i] for i in idxs])
-        for i in idxs:
-            self.board[i] = smushed.pop(0)
-
-    def _smush_left(self, col):
-        new_col = [v for v in col if v != 0]
-        i = 0
-        while i < len(new_col) - 1:
-            if new_col[i] == new_col[i + 1]:
-                val = new_col[i] * 2
-                self.score += val
-                new_col[i] = val
-                new_col.pop(i + 1)
-            i += 1
-
-        while len(new_col) < len(col):
-            new_col.append(0)
-        return new_col
+        sq1, r1 = squash_lookup[(self.board[0], self.board[1], self.board[2], self.board[3])]
+        sq2, r2 = squash_lookup[(self.board[4], self.board[5], self.board[6], self.board[7])]
+        sq3, r3 = squash_lookup[(self.board[8], self.board[9], self.board[10], self.board[11])]
+        sq4, r4 = squash_lookup[(self.board[12], self.board[13], self.board[14], self.board[15])]
+        self.set_board((sq1[0], sq1[1], sq1[2], sq1[3],
+                        sq2[0], sq2[1], sq2[2], sq2[3],
+                        sq3[0], sq3[1], sq3[2], sq3[3],
+                        sq4[0], sq4[1], sq4[2], sq4[3]))
+        self.score += r1 + r2 + r3 + r4

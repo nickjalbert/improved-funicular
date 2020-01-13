@@ -15,15 +15,14 @@ def test_boardenv_init():
 
 
 def test_set_board():
-    board = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    board = tuple([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
     game = Nick2048()
     game.set_board(board)
     assert game.board == board
-    assert not (game.board is board)
 
 
 def test_board_env_step_one():
-    init_state = [2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]
+    init_state = tuple([2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
@@ -38,7 +37,7 @@ def test_board_env_step_one():
 
 
 def test_board_env_step_two():
-    init_state = [4, 2, 2, 4, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]
+    init_state = tuple([4, 2, 2, 4, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
@@ -50,7 +49,7 @@ def test_board_env_step_two():
 
 def test_boardenv_move_logic_four_in_a_row():
     # make sure the behavior is correct when a row is full of same values.
-    init_state = [2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    init_state = tuple([2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
@@ -64,7 +63,7 @@ def test_boardenv_move_logic_four_in_a_row():
 
 
 def test_boardenv_done_logic():
-    init_state = [16, 8, 16, 4, 4, 2, 4, 8, 32, 2, 32, 4, 4, 16, 4, 8]
+    init_state = tuple([16, 8, 16, 4, 4, 2, 4, 8, 32, 2, 32, 4, 4, 16, 4, 8])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
@@ -90,7 +89,7 @@ def test_boardenv_done_logic():
 
 def test_boardenv_move_logic_three_in_a_row():
     # make sure the behavior is correct when 3 elts are same in a row
-    init_state = [0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0]
+    init_state = tuple([0, 2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
@@ -103,7 +102,7 @@ def test_boardenv_move_logic_three_in_a_row():
 
 def test_boardenv_fill_on_move_logic():
     # make sure a new piece is added that is either a 2 or a 4
-    init_state = [2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    init_state = tuple([2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
@@ -114,16 +113,15 @@ def test_boardenv_fill_on_move_logic():
 
 
 def test_set_board_makes_copy():
-    init_state = [2, 2, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    init_state = tuple([2, 2, 0, 0, 2, 4, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(init_state)
     assert game.board == init_state
-    assert not (game.board is init_state)
 
 
 def test_get_valid_actions():
     # UP, DOWN, LEFT, RIGHT is valid
-    all_board = [2, 4, 8, 16, 2, 8, 16, 32, 32, 16, 8, 4, 32, 32, 4, 8]
+    all_board = tuple([2, 4, 8, 16, 2, 8, 16, 32, 32, 16, 8, 4, 32, 32, 4, 8])
     game = Nick2048()
     game.set_board(all_board)
     all_actions = [(a, r) for (a, r, b) in game.get_valid_actions()]
@@ -135,7 +133,7 @@ def test_get_valid_actions():
     for (a, r, b) in Nick2048.get_valid_actions_from_board(all_board):
         assert (a, r) in all_actions
     # No valid actions
-    no_board = [2, 4, 8, 16, 32, 64, 128, 256, 2, 4, 8, 16, 32, 64, 128, 256]
+    no_board = tuple([2, 4, 8, 16, 32, 64, 128, 256, 2, 4, 8, 16, 32, 64, 128, 256])
     game.set_board(no_board)
     no_actions = [(a, r) for (a, r, b) in game.get_valid_actions()]
     assert game.board == no_board
@@ -143,7 +141,7 @@ def test_get_valid_actions():
     for (a, r, b) in Nick2048.get_valid_actions_from_board(no_board):
         assert (a, r) in no_actions
     # DOWN or RIGHT is valid
-    dr_board = [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    dr_board = tuple([2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     game.set_board(dr_board)
     some_actions = [(a, r) for (a, r, b) in game.get_valid_actions()]
     assert game.board == dr_board
@@ -156,7 +154,7 @@ def test_get_valid_actions():
 
 def test_get_valid_actions_by_reward():
     # UP, DOWN, LEFT, RIGHT is valid
-    board = [2, 4, 4, 2, 2, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    board = tuple([2, 4, 4, 2, 2, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     game = Nick2048()
     game.set_board(board)
     action_rewards = [(a, r) for (a, r, b) in game.get_valid_actions_by_reward()]
