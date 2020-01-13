@@ -4,11 +4,20 @@ from strategies.random import try_random
 
 
 def test_strategies():
-    SKIP = ["lookahead_3", "lookahead_4", "lookahead_5", "mcts"]
-    for strat_name, strategy in STRATEGIES.items():
-        if strat_name in SKIP:
-            continue
-        strategy(Nick2048, 2)
+    TO_TEST = [
+        "only_go_right",
+        "random",
+        "down_left",
+        "fixed_action_order",
+        "greedy",
+        "greedy_fixed_order",
+        "down_left_greedy",
+        "max_space_then_greedy",
+        "lookahead_1",
+        "lookahead_2",
+    ]
+    for strat_name in TO_TEST:
+        STRATEGIES[strat_name](Nick2048, 2)
 
 
 def test_implementations():
