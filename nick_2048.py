@@ -29,29 +29,70 @@ class Nick2048(Base2048):
         if len(self.empty_indexes) > 0:
             return False
         # board is full, so just check neighbors to see if we can squish
-        check_indices = {
-            0: [1, 4],
-            1: [0, 2, 5],
-            2: [1, 3, 6],
-            3: [2, 7],
-            4: [0, 5, 8],
-            5: [1, 4, 6, 9],
-            6: [2, 5, 7, 10],
-            7: [3, 6, 11],
-            8: [4, 9, 12],
-            9: [5, 8, 10, 13],
-            10: [6, 9, 11, 14],
-            11: [7, 10, 15],
-            12: [8, 13],
-            13: [9, 12, 14],
-            14: [10, 13, 15],
-            15: [11, 14],
-        }
-        for (idx, check_idxs) in check_indices.items():
-            el = self.board[idx]
-            for check_idx in check_idxs:
-                if el == self.board[check_idx]:
-                    return False
+        idx0 = self.board[0]
+        idx1 = self.board[1]
+        if idx0 == idx1:
+            return False
+        idx4 = self.board[4]
+        if idx0 == idx4:
+            return False
+        idx2 = self.board[2]
+        if idx1 == idx2:
+            return False
+        idx5 = self.board[5]
+        if idx1 == idx5:
+            return False
+        idx3 = self.board[3]
+        if idx2 == idx3:
+            return False
+        idx6 = self.board[6]
+        if idx2 == idx6:
+            return False
+        idx7 = self.board[7]
+        if idx3 == idx7:
+            return False
+        if idx4 == idx5:
+            return False
+        idx8 = self.board[8]
+        if idx4 == idx8:
+            return False
+        if idx5 == idx6:
+            return False
+        idx9 = self.board[9]
+        if idx5 == idx9:
+            return False
+        if idx6 == idx7:
+            return False
+        idx10 = self.board[10]
+        if idx6 == idx10:
+            return False
+        idx11 = self.board[11]
+        if idx7 == idx11:
+            return False
+        if idx8 == idx9:
+            return False
+        idx12 = self.board[12]
+        if idx8 == idx12:
+            return False
+        idx13 = self.board[13]
+        if idx9 == idx10:
+            return False
+        if idx9 == idx13:
+            return False
+        if idx10 == idx11:
+            return False
+        idx14 = self.board[14]
+        if idx10 == idx14:
+            return False
+        idx15 = self.board[15]
+        if idx11 == idx15:
+            return False
+        if idx12 == idx13:
+            return False
+        if idx13 == idx14:
+            return False
+        if idx14 == idx15:
+            return False
         return True
 
     @classmethod

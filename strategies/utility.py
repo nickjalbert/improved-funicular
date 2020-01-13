@@ -13,8 +13,8 @@ def do_trials(cls, trial_count, strategy, check_done_fn=None):
         steps = 0
         while not done:
             assert curr_board == game.board
+            prev_board = game.board
             move = strategy(curr_board)
-            prev_board = curr_board[:]
             curr_board, reward, done = game.step(move)
             steps += 1
             if check_done_fn is not None:
