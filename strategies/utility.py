@@ -41,3 +41,9 @@ def do_trials(cls, trial_count, strategy, check_done_fn=None):
         f"\tStandard Dev: {statistics.stdev(scores)}\n"
         f"\tMin Score: {min(scores)}\n"
     )
+    return {"Max Tile": max(max_tiles),
+            "Max Score": max(scores),
+            "Mean Score": statistics.mean(scores),
+            "Median Score": statistics.median(scores),
+            "Standard Dev": statistics.stdev(scores),
+            "Min Score": min(scores)}

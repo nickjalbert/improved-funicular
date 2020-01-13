@@ -36,11 +36,10 @@ def train_mcts(cls, next_action, num_rollouts=100000, epsilon=0.1, discount_rate
         returns = [0] * len(rewards)
         returns[-1] = rewards[-1]
         for i in range(len(rewards) - 2, -1, -1):
+            returns[i] = rewards[i] + discount_rate * returns[i + 1]
             if not is_duplicate[i]:
                 n[(tuple(states[i]), actions[i])] += 1
-                sum_ret[(tuple(states[i]), actions[i])] += (
-                    rewards[i] + discount_rate * returns[i + 1]
-                )
+                sum_ret[(tuple(states[i]), actions[i])] += returns[i]
 
 
 def try_mcts(cls, trial_count):
