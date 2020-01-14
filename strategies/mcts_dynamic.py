@@ -6,19 +6,19 @@ from strategies.utility import do_trials, softmax
 
 
 def train_tabular_mcts(
-        cls,
-        policy_fn,
-        n,
-        sum_ret,
-        num_rollouts=100000,
-        max_rollout_steps=20,
-        epsilon=0.9,
-        discount_rate=0.95,
-        perc_rollouts_full_random=10,
-        rollout_start_count=0,
-        init_board=None,
-        print_stats=False,
-        print_freq=100,
+    cls,
+    policy_fn,
+    n,
+    sum_ret,
+    num_rollouts=100000,
+    max_rollout_steps=20,
+    epsilon=0.9,
+    discount_rate=0.95,
+    perc_rollouts_full_random=10,
+    rollout_start_count=0,
+    init_board=None,
+    print_stats=False,
+    print_freq=100,
 ):
     num_revisits = 0
     for rollout_num in range(num_rollouts):
@@ -41,7 +41,10 @@ def train_tabular_mcts(
         state_action_pairs = set()
         step_num = 0
         while not done and step_num < max_rollout_steps:
-            assert np.array_equal(curr_board, np.asarray(game.board)), (curr_board, np.asarray(game.board))
+            assert np.array_equal(curr_board, np.asarray(game.board)), (
+                curr_board,
+                np.asarray(game.board),
+            )
             if random.random() < prob_rand_action:
                 action = cls.random_direction()
             else:
@@ -66,20 +69,23 @@ def train_tabular_mcts(
                 sum_ret[(tuple(states[i]), actions[i])] += returns[i]
         num_revisits += num_revisits_this_rollout
 
-        stats = {"num_steps": len(rewards),
-                 "game_score": sum(rewards),
-                 "prob random action": prob_rand_action,
-                 "len sum_ret dict": len(sum_ret),
-                 "total num states-action pairs revisited": num_revisits,
-                 "percent state-action pairs in this rollout seen already":
-                     num_revisits_this_rollout / step_num * 100.0}
+        stats = {
+            "num_steps": len(rewards),
+            "game_score": sum(rewards),
+            "prob random action": prob_rand_action,
+            "len sum_ret dict": len(sum_ret),
+            "total num states-action pairs revisited": num_revisits,
+            "percent state-action pairs in this rollout seen already": num_revisits_this_rollout
+            / step_num
+            * 100.0,
+        }
         if print_stats and rollout_num % print_freq == 0:
             print("rollout num %s" % rollout_num)
             for k, v in stats.items():
                 print("%s: %s" % (k, v))
             print()
 
-        #mlflow.log_metrics(stats, step=rollout_num)
+        # mlflow.log_metrics(stats, step=rollout_num)
     return num_revisits
 
 
@@ -94,7 +100,9 @@ def get_strategy_function(cls, epsilon, rollouts_per_move):
                 return 0
 
         action_values = np.array([q(a) for a in range(action_space.n)])
-        return np.random.choice(np.flatnonzero(action_values == action_values.max()))  # break ties with random coin flip.
+        return np.random.choice(
+            np.flatnonzero(action_values == action_values.max())
+        )  # break ties with random coin flip.
         # return np.argmax(np.random.multinomial(1, softmax(action_values)))
 
     def strategy_fn(board):

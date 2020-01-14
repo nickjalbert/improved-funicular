@@ -14,19 +14,20 @@ q_model = keras.Sequential(
 )
 num_revisits = 0
 
+
 def train_dnn_mcts(
-        cls,
-        policy_fn,
-        n,
-        sum_ret,
-        num_rollouts=100000,
-        epsilon=0.9,
-        discount_rate=0.95,
-        perc_rollouts_full_random=10,
-        rollout_start_count=0,
-        init_board=None,
-        print_stats=False,
-        print_freq=100,
+    cls,
+    policy_fn,
+    n,
+    sum_ret,
+    num_rollouts=100000,
+    epsilon=0.9,
+    discount_rate=0.95,
+    perc_rollouts_full_random=10,
+    rollout_start_count=0,
+    init_board=None,
+    print_stats=False,
+    print_freq=100,
 ):
     global num_revisits
     for rollout_num in range(num_rollouts):
@@ -78,13 +79,16 @@ def train_dnn_mcts(
                 sum_ret[(tuple(states[i]), actions[i])] += returns[i]
         num_revisits += num_revisits_this_rollout
 
-        stats = {"num_steps": len(rewards),
-                 "game_score": sum(rewards),
-                 "prob random action": prob_rand_action,
-                 "len sum_ret dict": len(sum_ret),
-                 "total num states-action pairs revisited": num_revisits,
-                 "percent state-action pairs in this rollout seen already":
-                     num_revisits_this_rollout / step_num * 100.0}
+        stats = {
+            "num_steps": len(rewards),
+            "game_score": sum(rewards),
+            "prob random action": prob_rand_action,
+            "len sum_ret dict": len(sum_ret),
+            "total num states-action pairs revisited": num_revisits,
+            "percent state-action pairs in this rollout seen already": num_revisits_this_rollout
+            / step_num
+            * 100.0,
+        }
         if print_stats and rollout_num % print_freq == 0:
             print("rollout num %s" % rollout_num)
             for k, v in stats.items():
@@ -106,7 +110,9 @@ def try_mcts(cls, trial_count):
 
     def mcts_policy_fn(board):
         # return action_space[np.argmax([q(s, a) for a in range(action_space.n)])]
-        action_values = np.array([q(board, a, n, sum_ret) for a in range(action_space.n)])
+        action_values = np.array(
+            [q(board, a, n, sum_ret) for a in range(action_space.n)]
+        )
         # return action_space[np.random.choice(np.flatnonzero(action_values == action_values.max()))] # break ties with random coin flip.
         action = np.argmax(np.random.multinomial(1, softmax(action_values)))
         return action
@@ -145,10 +151,7 @@ def try_mcts(cls, trial_count):
                 % (trial_count, training_iter)
             )
             trial_result = do_trials(
-                cls,
-                trial_count,
-                mcts_policy_fn,
-                init_board=init_board,
+                cls, trial_count, mcts_policy_fn, init_board=init_board,
             )
             mlflow.log_metrics(trial_result, step=training_iter)
 
