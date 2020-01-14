@@ -8,7 +8,7 @@ def try_random(cls, trial_count):
         return random.choice(choices)
 
     random_fn.info = "Random strategy"
-    do_trials(cls, trial_count, random_fn)
+    do_trials(cls, trial_count, random_fn, always_print=True)
 
 
 try_random.info = "Try random moves until game over"

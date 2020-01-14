@@ -34,11 +34,11 @@ def try_lookahead_with_rollout(cls, trial_count):
         if len([v for v in board if v == 0]) > ROLLOUT_THRESHOLD:
             return lookahead_fn(board)
         else:
-            # tmp = cls()
-            # tmp.board = board
-            # tmp.render_board()
             return best_next_move_from_random_rollouts(cls, board)
-            # print(action)
 
-    lookahead_with_rollout_fn.info = f"Lookahead 3 with rollout strategy"
-    do_trials(cls, trial_count, lookahead_with_rollout_fn)
+    lookahead_with_rollout_fn.info = f"Lookahead {LOOKAHEAD_COUNT} with "
+    lookahead_with_rollout_fn.info += f"{ROLLOUTS_PER_MOVE} "
+    lookahead_with_rollout_fn.info += f"random rollouts per move "
+    lookahead_with_rollout_fn.info += f"when board has <= {ROLLOUT_THRESHOLD} "
+    lookahead_with_rollout_fn.info += f"empty spaces"
+    do_trials(cls, trial_count, lookahead_with_rollout_fn, always_print=True)
