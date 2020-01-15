@@ -55,9 +55,9 @@ def train_tabular_mcts(
             state_action_pairs.add((tuple(curr_board), action))
             curr_board, reward, done, _ = game.step(action)
             curr_board = np.asarray(curr_board)
-            print(["R","D","L","U"][action])
+            print(["R", "D", "L", "U"][action])
             print()
-            print(np.asarray(curr_board).reshape(4,4))
+            print(np.asarray(curr_board).reshape(4, 4))
             print()
             rewards.append(reward)
             step_num += 1
