@@ -1,5 +1,5 @@
 # RL Agent that plays 2048 using REINFORCE. Coded by Andy.
-from andy_2048 import BoardEnv
+from envs.andy_2048 import BoardEnv
 import tensorflow.keras as keras
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -7,16 +7,14 @@ import mlflow
 import numpy as np
 from copy import deepcopy
 
-params = {}
-params["board_width"] = 4
-
-params["num_iters"] = 2
-params["num_episodes_per_iter"] = 10
-params["max_steps_per_episode"] = 500
-
-params["discount_rate"] = 0.95
-params["epsilon_base"] = 0.2
-params["learning_rate"] = 0.01
+params = {"board_width": 4,
+          "num_iters": 2,
+          "num_episodes_per_iter":10,
+          "max_steps_per_episode": 500,
+          "discount_rate": 0.95,
+          "epsilon_base": 0.2,
+          "learning_rate": 0.01
+          }
 
 with mlflow.start_run() as run:
     mlflow.log_params(params)
@@ -65,7 +63,7 @@ with mlflow.start_run() as run:
                 action = b.action_space[np.argmax(dice_roll)]
                 all_actions.append(action)
                 # print(action_probs, dice_roll, action)
-                new_state, reward, done = b.step(action)
+                new_state, reward, done, _ = b.step(action)
                 # if np.array_equal(new_state, state):  # don't keep trying dud moves
                 #     break
                 state = new_state
