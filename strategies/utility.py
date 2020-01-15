@@ -9,6 +9,7 @@ def softmax(x):
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)
 
+
 def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None):
     start_time = time.time()
     scores = []

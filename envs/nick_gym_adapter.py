@@ -13,12 +13,10 @@ class Nick2048Gym(Nick2048):
         board, score, done = super().get_state()
         return np.asarray(board), score, done
 
-    # returns an bos
     def step(self, direction):
         obs, reward, done, c = super().step(direction)
         return np.asarray(obs), reward, done, c
 
-    # takes a numpy array
     def set_board(self, board):
         if not isinstance(board, tuple):
             board = tuple(board)

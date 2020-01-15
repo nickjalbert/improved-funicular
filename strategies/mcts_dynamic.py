@@ -2,7 +2,8 @@ import random
 from collections import defaultdict
 import numpy as np
 import mlflow
-from strategies.utility import do_trials, softmax
+from strategies.utility import do_trials
+# from strategies.utility import softmax
 
 
 def train_tabular_mcts(
@@ -129,15 +130,15 @@ def get_strategy_function(cls, epsilon, rollouts_per_move):
             print_stats=False,
         )
         # print("finished training our value function. Here are the results for 4 actions given our current state:")
-        for i in range(4):
-            # print(f"n(board, %s): %s" % (["R","D","L","U"][i], n[(tuple(board), i)]))
-            # print(f"sum_ret: %s" % sum_ret[(tuple(board), i)])
-            if n[(tuple(board), i)]:
-                avg_sum_ret = sum_ret[(tuple(board), i)] / n[(tuple(board), i)]
-            else:
-                avg_sum_ret = 0
-            # print(f"avg sum_ret: %s" % avg_sum_ret)
-            # print("--")
+        # for i in range(4):
+        #    # print(f"n(board, %s): %s" % (["R","D","L","U"][i], n[(tuple(board), i)]))
+        #    # print(f"sum_ret: %s" % sum_ret[(tuple(board), i)])
+        #    # if n[(tuple(board), i)]:
+        #        # avg_sum_ret = sum_ret[(tuple(board), i)] / n[(tuple(board), i)]
+        #    # else:
+        #        # avg_sum_ret = 0
+        #    # print(f"avg sum_ret: %s" % avg_sum_ret)
+        #    # print("--")
         return policy_fn(board, n, sum_ret)
 
     return strategy_fn

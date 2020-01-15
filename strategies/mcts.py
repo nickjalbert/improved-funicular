@@ -108,7 +108,8 @@ def try_mcts(cls, trial_count):
         action_values = np.array(
             [q(board, a, n, sum_ret) for a in range(action_space.n)]
         )
-        # return action_space[np.random.choice(np.flatnonzero(action_values == action_values.max()))] # break ties with random coin flip.
+        # break ties with random coin flip.
+        # return action_space[np.random.choice(np.flatnonzero(action_values == action_values.max()))]
         action = np.argmax(np.random.multinomial(1, softmax(action_values)))
         return action
 
