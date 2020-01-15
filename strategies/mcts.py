@@ -4,8 +4,10 @@ import numpy as np
 import mlflow
 from strategies.utility import do_trials, softmax
 
-n = defaultdict(int)
-sum_ret = defaultdict(lambda: 0.001)
+
+# globals so that we'll keep value function state across training rollouts
+n = defaultdict(int)  # tuple(board), action -> count of visits
+sum_ret = defaultdict(lambda: 1)  # tuple(board), action -> expected return val
 num_revisits = 0
 
 
