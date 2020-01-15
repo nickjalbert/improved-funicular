@@ -1,5 +1,5 @@
 # RL Agent that plays 2048 using Actor-Critic. Coded by Andy 12/18/2019
-from andy_2048 import BoardEnv
+from envs.andy_2048 import BoardEnv
 import mlflow
 import numpy as np
 import tensorflow.keras as keras
@@ -49,7 +49,7 @@ with mlflow.start_run() as run:
         game_score = 0
         for step_num in range(params["max_steps_per_episode"]):
             # compute s'
-            next_state, reward, done = b.step(action)
+            next_state, reward, done, _ = b.step(action)
             if np.array_equal(next_state, state):  # don't keep trying dud moves
                 break
             # compute a' and grad log pi(a'|s')
