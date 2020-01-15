@@ -1,3 +1,5 @@
+""" An implementation of 2048 that is mostly like a Gym Environment, except its board
+    state and observations are in python tuples instead of numpy arrays."""
 import random
 from envs.base_2048 import Base2048
 from etc.squash_lookup_table import squash_lookup

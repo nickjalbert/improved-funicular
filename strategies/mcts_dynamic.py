@@ -54,6 +54,11 @@ def train_tabular_mcts(
             is_duplicate.append((tuple(curr_board), action) in state_action_pairs)
             state_action_pairs.add((tuple(curr_board), action))
             curr_board, reward, done, _ = game.step(action)
+            curr_board = np.asarray(curr_board)
+            print(["R","D","L","U"][action])
+            print()
+            print(np.asarray(curr_board).reshape(4,4))
+            print()
             rewards.append(reward)
             step_num += 1
         # calculate returns (i.e., discounted future rewards) using bellman backups for the rollout just completed

@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from envs.andy_2048 import BoardEnv
-from andy_adapter import Andy2048
+from envs.andy_adapter import Andy2048
 
 
 def test_boardenv_random_direction():

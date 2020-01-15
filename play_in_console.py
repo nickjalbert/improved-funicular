@@ -1,7 +1,7 @@
 import sys
 import readchar
 from envs.nick_2048 import Nick2048
-from andy_adapter import Andy2048
+from envs.andy_adapter import Andy2048
 from strategies.lookahead import get_lookahead_fn
 
 

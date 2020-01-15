@@ -1,4 +1,4 @@
-from envs.nick_2048 import Nick2048
+from envs.nick_gym_adapter import Nick2048Gym
 
 # from https://github.com/ray-project/ray/blob/master/rllib/examples/custom_env.py
 """Example of a custom gym environment and model. Run this for a demo.
@@ -13,7 +13,8 @@ import mlflow
 import numpy as np
 import gym
 from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG
-from ray.rllib.agents.dqn import ApexTrainer, DEFAULT_CONFIG
+from ray.rllib.agents.dqn import DEFAULT_CONFIG
+from ray.rllib.agents.dqn.apex import ApexTrainer, APEX_DEFAULT_CONFIG
 from ray.rllib.models import ModelCatalog
 from ray.rllib.models.tf.tf_modelv2 import TFModelV2
 from ray.rllib.models.tf.fcnet_v2 import FullyConnectedNetwork
@@ -50,7 +51,7 @@ def run_ppo():
            "timesteps_total": 30000,
        },
        config={
-           "env": Nick2048,  # or "corridor" if registered above
+           "env": Nick2048Gym,  # or "corridor" if registered above
            "num_workers": 2,  # parallelism
        },
     )
@@ -62,13 +63,27 @@ def run_dqn():
                  "timesteps_total": 30000,
              },
              config={
-                 "env": Nick2048,
+                 "env": Nick2048Gym,
                  "num_workers": 2,  # parallelism
+             })
+
+
+def run_apex():
+    tune.run("APEX",
+             stop={
+                 "timesteps_total": 30000,
+             },
+             config={
+                 "env": Nick2048Gym,
+                 "num_workers": 2,  # parallelism
+                 "num_gpus": 0,
              })
 
 
 if __name__ == "__main__":
     with mlflow.start_run():
         ray.init()
+        #run_ppo()
         run_dqn()
+        #run_apex()
 

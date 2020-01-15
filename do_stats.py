@@ -14,10 +14,12 @@ from strategies.mcts import try_mcts
 from strategies.mcts_dynamic import try_mcts_dynamic
 
 from envs.nick_2048 import Nick2048
-from andy_adapter import Andy2048
+from envs.nick_gym_adapter import Nick2048Gym
+from envs.andy_adapter import Andy2048
 
 IMPLEMENTATIONS = {
     "nick": Nick2048,
+    "nick_gym": Nick2048Gym,
     "andy": Andy2048,
 }
 

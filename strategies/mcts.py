@@ -3,19 +3,13 @@ from collections import defaultdict
 import numpy as np
 import mlflow
 from strategies.utility import do_trials, softmax
-import tensorflow.keras as keras
 
-# globals so that we'll keep value function state across training rollouts
-q_model = keras.Sequential(
-    [
-        keras.layers.Dense(10, input_shape=(16,), activation="relu"),
-        keras.layers.Dense(4, activation="relu"),
-    ]
-)
+n = defaultdict(int)
+sum_ret = defaultdict(lambda: 0.001)
 num_revisits = 0
 
 
-def train_dnn_mcts(
+def train_tabular_mcts(
     cls,
     policy_fn,
     n,
@@ -49,19 +43,18 @@ def train_dnn_mcts(
         state_action_pairs = set()
         step_num = 0
         while not done:
-            assert curr_board == game.board
             if random.random() < prob_rand_action:
-                action = cls.action_space.sample()
+                action = game.action_space.sample()
             else:
                 action = policy_fn(curr_board)
-            states.append(curr_board.copy())
+            states.append(curr_board)
             actions.append(action)
             is_duplicate.append((tuple(curr_board), action) in state_action_pairs)
             state_action_pairs.add((tuple(curr_board), action))
-            new_board, reward, done = game.step(action)
+            new_board, reward, done, _ = game.step(action)
             rewards.append(reward)
 
-            # update v network
+            # TODO: use a DNN as a value function, and use n-step Temporal Difference learning.
 
             curr_board = new_board
             step_num += 1
