@@ -1,7 +1,7 @@
 import random
 import numpy as np
-from andy_2048 import BoardEnv
-from andy_adapter import Andy2048
+from envs.andy_2048 import BoardEnv
+from envs.andy_adapter import Andy2048
 
 
 def test_boardenv_random_direction():
@@ -36,7 +36,7 @@ def test_board_env_step_one():
         [0.0, 0.0, 0.0, 0.0],
     ]
     b = BoardEnv().from_init_state(init_state)
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert state[0, 3] == 2.0 and state[2, 3] == 2.0
 
 
@@ -48,7 +48,7 @@ def test_board_env_step_two():
         [0.0, 0.0, 0.0, 0.0],
     ]
     b = BoardEnv().from_init_state(init_state)
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert state[0, 1] == 4.0
     assert state[0, 2] == 4.0
     assert state[0, 3] == 4.0
@@ -63,7 +63,7 @@ def test_board_env_step_three():
         [0.0, 0.0, 0.0, 0.0],
     ]
     b = BoardEnv().from_init_state(init_state)
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert state[0, 3] == 2.0 and state[2, 3] == 2.0, state
 
 
@@ -77,10 +77,10 @@ def test_boardenv_move_logic_four_in_a_row():
     ]
     b = BoardEnv().from_init_state(init_state)
     assert np.array_equal(init_state, b.state)
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert reward == 8
     assert state[0, 2] == 4 and state[0, 3] == 4, b.state
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert reward >= 8
     assert state[0, 3] == 8, b.state
 
@@ -93,16 +93,16 @@ def test_boardenv_done_logic():
         [4.0, 16.0, 4.0, 8.0],
     ]
     b = BoardEnv().from_init_state(init_state)
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert not done and np.array_equal(state, np.array(init_state))
     assert reward == 0
-    state, reward, done = b.step(BoardEnv.RIGHT)
+    state, reward, done, _ = b.step(BoardEnv.RIGHT)
     assert not done and np.array_equal(state, np.array(init_state))
     assert reward == 0
-    state, reward, done = b.step(BoardEnv.LEFT)
+    state, reward, done, _ = b.step(BoardEnv.LEFT)
     assert not done and np.array_equal(state, np.array(init_state))
     assert reward == 0
-    state, reward, done = b.step(BoardEnv.DOWN)
+    state, reward, done, _ = b.step(BoardEnv.DOWN)
     assert done, state
     assert reward == 4
 
@@ -117,7 +117,7 @@ def test_boardenv_move_logic_three_in_a_row():
     ]
     b = BoardEnv().from_init_state(init_state)
     assert np.array_equal(init_state, b.state)
-    state, reward, done = b.step(BoardEnv.DOWN)
+    state, reward, done, _ = b.step(BoardEnv.DOWN)
     assert reward == 4
     assert state[3, 1] == 4 and state[2, 1] == 2, b.state
 
@@ -131,7 +131,7 @@ def test_boardenv_fill_on_move_logic():
         [0.0, 0.0, 0.0, 0.0],
     ]
     b = BoardEnv().from_init_state(init_state)
-    state, reward, done = b.step(BoardEnv.LEFT)
+    state, reward, done, _ = b.step(BoardEnv.LEFT)
     num_non_zero_spots = (b.state != 0).sum().sum()
     assert num_non_zero_spots == 2, state
 

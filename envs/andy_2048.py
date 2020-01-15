@@ -112,4 +112,4 @@ class BoardEnv:
                     new_board[rand_index[0], rand_index[1]] = val
                     break
         self.state = new_board
-        return new_board, reward, self.done
+        return new_board, reward, self.done, {}

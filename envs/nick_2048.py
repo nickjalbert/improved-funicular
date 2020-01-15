@@ -1,6 +1,10 @@
+""" An implementation of 2048 that is mostly like a Gym Environment, except its board
+    state and observations are in python tuples instead of numpy arrays."""
 import random
-from base_2048 import Base2048
+from envs.base_2048 import Base2048
 from etc.squash_lookup_table import squash_lookup
+from gym.spaces import Discrete, Box
+import numpy as np
 
 # self.board is a 1D list that represents the 2D board follows:
 #       [
@@ -20,8 +24,9 @@ class Nick2048(Base2048):
     LEFT = 2
     UP = 3
 
-    def __init__(self):
-        self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
+    def __init__(self, config=None):
+        self.action_space = Discrete(4)  # action space is: [R, D, U, L]
+        self.observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
         self.reset()
 
     @property
@@ -123,13 +128,14 @@ class Nick2048(Base2048):
         if old_board != self.board:
             self.add_new_random_number()
         board, new_score, done = self.get_state()
-        return board, new_score - old_score, done
+        return board, new_score - old_score, done, {}
 
     def reset(self):
         self.set_board((0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
         self.add_new_random_number()
         self.add_new_random_number()
         self.score = 0
+        return self.board
 
     def add_new_random_number(self):
         return self._set_random_position(2 if random.random() <= 0.9 else 4)
