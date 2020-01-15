@@ -11,21 +11,23 @@ Here's how various 2048 strategies perform
 implementation with the named strategy,
 tested on a 2012 macbook air with 1.8GHz i5 and 4GB of 1600MHz DDR3 RAM):
 
-| Strategy           | Max observed tile | Mean Score    | Score Standard Dev | Mean steps per game | Mean sec per game  |
-| -----------------  | ----------------: | ------------: | -----------------: |-------------------: | -----------------: |
-| Only Go Right      | 16                | 13            | 18                 | 6                   |   .00005 sec        |
-| Random             | 256               | 1058          | 504                | 138                 |   .006 sec          |
-| Down Left          | 512               | 2332          | 1131               | 207                 |   .05 sec           |
-| Fixed order        | 512               | 2492          | 1345               | 221                 |   .05 sec           |
-| Greedy             | 512               | 2122          | 930                | 188                 |   .05 sec           |
-| Greedy Fixed Order | 512               | 3028          | 1580               | 256                 |   .06 sec           |
-| Down Left Greedy   | 512               | 2107          | 1076               | 192                 |   .05 sec           |
-| Max Space Greedy   | 512               | 3157          | 1477               | 266                 |   .06 sec           |
-| Lookahead 1        | 1024              | 3008          | 1864               | 252                 |   .1 sec            |
-| Lookahead 2        | 1024              | 7446          | 3157               | 491                 |   .7 sec            |
-| Lookahead 3        | 1024              | 11659         | 3958               | 710                 |  5.1 sec            |
-| Lookahead 4        | 2048              | 16757         | 7443               | 945                 | 33.1 sec            |
+| Strategy                 | Max tile | Max Score | Mean Score    | Score Standard Dev | Mean steps per game | Mean sec per game    | Git Hash   |
+| ------------------------ | -------: | --------: | ------------: | -----------------: |-------------------: | -------------------: | --------:  |
+| Only Go Right            | 16       |           | 13            | 18                 | 6                   |     .00005 sec       |            |
+| Random                   | 256      |           | 1058          | 504                | 138                 |     .006 sec         |            |
+| Down Left                | 512      |           | 2332          | 1131               | 207                 |     .05 sec          |            |
+| Fixed order              | 512      |           | 2492          | 1345               | 221                 |     .05 sec          |            |
+| Greedy                   | 512      |           | 2122          | 930                | 188                 |     .05 sec          |            |
+| Greedy Fixed Order       | 512      |           | 3028          | 1580               | 256                 |     .06 sec          |            |
+| Down Left Greedy         | 512      |           | 2107          | 1076               | 192                 |     .05 sec          |            |
+| Max Space Greedy         | 512      |           | 3157          | 1477               | 266                 |     .06 sec          |            |
+| Lookahead 1              | 1024     |           | 3008          | 1864               | 252                 |     .1 sec           |            |
+| Lookahead 2              | 1024     |           | 7446          | 3157               | 491                 |     .7 sec           |            |
+| Lookahead 3              | 1024     |           | 11659         | 3958               | 710                 |    5.1 sec           |            |
+| Lookahead 4              | 2048     |           | 16757         | 7443               | 945                 |   33.1 sec           |            |
+| Lookahead 3 + rollouts<sup>1</sup> | 4096 | 75832 | 36670       | 14124              | 1853                |  758 sec             | c3bb225    |
 
+1. Lookahead 3 that switches to 150 random rollouts per move when board has <= 7 empty spaces
 
 ## Setup
 

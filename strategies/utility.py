@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import statistics
+from collections import Counter
 
 
 # From https://stackoverflow.com/questions/34968722/how-to-implement-the-softmax-function-in-python
@@ -10,7 +11,38 @@ def softmax(x):
     return e_x / e_x.sum(axis=0)
 
 
-def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None):
+def print_results(strategy, elapsed, step_counts, max_tiles, scores):
+    trial_count = len(step_counts)
+    elapsed_per_trial = elapsed / trial_count
+    elapsed = round(elapsed, 2)
+    elapsed_per_trial = round(elapsed_per_trial, 5)
+    mean_steps = round(statistics.mean(step_counts), 1)
+    mean_step_time = round(elapsed / sum(step_counts), 5)
+    max_tiles_str = ""
+    max_tile_counts = Counter(max_tiles)
+    for tile, count in sorted(max_tile_counts.most_common(), reverse=True):
+        percentage = round(count * 100 / len(max_tiles), 2)
+        max_tiles_str += f"\t\t{tile}: {count} ({percentage}%)\n"
+    mean = statistics.mean(scores) if trial_count > 1 else scores[0]
+    median = statistics.median(scores) if trial_count > 1 else scores[0]
+    stdev = statistics.stdev(scores) if trial_count > 1 else 0
+    print(
+        f"{strategy.info} "
+        f"({trial_count} trials, "
+        f"{elapsed} sec total, {elapsed_per_trial} sec per trial):\n"
+        f"\n\tMean steps per game: {mean_steps}\n"
+        f"\tMean time per step: {mean_step_time}\n"
+        f"\n\tMax Tiles:\n"
+        f"{max_tiles_str}"
+        f"\n\tMax Score: {max(scores)}\n"
+        f"\tMean Score: {mean}\n"
+        f"\tMedian Score: {median}\n"
+        f"\tStandard Dev: {stdev}\n"
+        f"\tMin Score: {min(scores)}\n"
+    )
+
+
+def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None, always_print=False):
     start_time = time.time()
     scores = []
     max_tiles = []
@@ -33,27 +65,17 @@ def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None):
         scores.append(score)
         max_tiles.append(max(game.board))
         step_counts.append(steps)
-    elapsed = time.time() - start_time
-    elapsed_per_trial = elapsed / trial_count
-    elapsed = round(elapsed, 2)
-    elapsed_per_trial = round(elapsed_per_trial, 5)
-    mean_steps = round(statistics.mean(step_counts), 1)
-    mean_step_time = round(elapsed / sum(step_counts), 5)
-    print(
-        f"{strategy.info} "
-        f"({elapsed} sec total, {elapsed_per_trial} sec per trial):\n"
-        f"\n\tMean steps per game: {mean_steps}\n"
-        f"\tMean time per step: {mean_step_time}\n"
-        f"\tMax Tile: {max(max_tiles)}\n"
-        f"\n\tMax Score: {max(scores)}\n"
-        f"\tMean Score: {statistics.mean(scores)}\n"
-        f"\tMedian Score: {statistics.median(scores)}\n"
-        f"\tStandard Dev: {statistics.stdev(scores)}\n"
-        f"\tMin Score: {min(scores)}\n"
-    )
-    return {"Max Tile": max(max_tiles),
-            "Max Score": max(scores),
-            "Mean Score": statistics.mean(scores),
-            "Median Score": statistics.median(scores),
-            "Standard Dev": statistics.stdev(scores),
-            "Min Score": min(scores)}
+        elapsed = time.time() - start_time
+        if always_print:
+            print_results(strategy, elapsed, step_counts, max_tiles, scores)
+    print("\n=================\n")
+    print("Final Results")
+    print_results(strategy, elapsed, step_counts, max_tiles, scores)
+    return {
+        "Max Tile": max(max_tiles),
+        "Max Score": max(scores),
+        "Mean Score": statistics.mean(scores),
+        "Median Score": statistics.median(scores),
+        "Standard Dev": statistics.stdev(scores),
+        "Min Score": min(scores),
+    }

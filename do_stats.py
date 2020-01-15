@@ -12,6 +12,7 @@ from strategies.max_space_then_greedy import try_max_space_then_greedy
 from strategies.lookahead import try_lookahead
 from strategies.mcts import try_mcts
 from strategies.mcts_dynamic import try_mcts_dynamic
+from strategies.lookahead_with_rollout import try_lookahead_with_rollout
 
 from envs.nick_2048 import Nick2048
 from envs.nick_gym_adapter import Nick2048Gym
@@ -77,6 +78,7 @@ STRATEGIES = {
     "lookahead_5": try_lookahead_5,
     "mcts": try_mcts,
     "mcts_dynamic": try_mcts_dynamic,
+    "lookahead_with_rollout": try_lookahead_with_rollout,
 }
 
 
