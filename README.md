@@ -7,7 +7,7 @@ Python 3 implementation of the [2048 game](https://play2048.co/).
 ## Performance
 
 Here's how various 2048 strategies perform
-(tested on a 2012 macbook air with 1.8GHz i5 and 4GB of 1600MHz DDR3 RAM
+(tested on a 2012 macbook air with a 1.8GHz i5 and 4GB of 1600MHz DDR3 RAM
 and run using `python do_stats.py nick 100 [strategy_name]`
 ):
 
