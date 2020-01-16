@@ -24,7 +24,7 @@ and run using `python do_stats.py nick 100 [strategy_name]`
 | `lookahead_1`            | 1024     | 11940     |  3008         |   1864             |  252                |     .1     sec       | b51ed7d    |
 | `lookahead_2`            | 1024     | 15428     |  7446         |   3157             |  491                |     .7     sec       | b51ed7d    |
 | `lookahead_3`            | 2048     | 25868     | 11659         |   3958             |  724                |    5.1     sec       | b51ed7d    |
-| `lookahead_4`            | 2048     |           | 16757         |   7443             |  945                |   33.1     sec       |            |
+| `lookahead_4`            | 2048     | 35500     | 16757         |   7443             |  945                |   33.1     sec       | 02b412d    |
 | `lookahead_with_rollout`<sup>1</sup> | 4096 | 75832 | 36670     |  14124             | 1853                |  758       sec       | c3bb225    |
 
 1. Lookahead 3 that switches to 150 random rollouts per move when board has <= 7 empty spaces
