@@ -7,6 +7,7 @@ This example shows:
 You can visualize experiment results in ~/ray_results using TensorBoard.
 """
 
+import argparse
 from envs.nick_gym_adapter import Nick2048Gym
 import mlflow
 import ray
@@ -78,8 +79,16 @@ def run_apex():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--ec2", action='store_true', description='this is running on an EC2 Ray cluster')
+    args = parser.parse_args()
     with mlflow.start_run():
-        ray.init()
-        # run_ppo()
-        run_dqn()
-        # run_apex()
+        if args.ec2:
+            print("running APEX in Ray on this EC2 cluster")
+            ray.init(address="auto")
+            run_apex()
+        else:
+            ray.init()
+            run_ppo()
+
+        #run_dqn()
