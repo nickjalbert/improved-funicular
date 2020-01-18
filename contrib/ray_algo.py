@@ -58,15 +58,15 @@ def run_dqn():
     tune.run(
         "DQN",
         stop={"timesteps_total": 30000,},
-        config={"env": Nick2048Gym, "num_workers": 2,},  # parallelism
+        config={"env": Nick2048Gym, "num_workers": 2}
     )
 
 
 def run_apex():
     tune.run(
         "APEX",
-        stop={"timesteps_total": 30000,},
-        config={"env": Nick2048Gym, "num_workers": 2, "num_gpus": 0,},  # parallelism
+        stop={"timesteps_total": 1000000,},
+        config={"env": Nick2048Gym, "num_workers": 7, "num_gpus": 1}
     )
 
 
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ec2",
         action="store_true",
-        description="this is running on an EC2 Ray cluster",
+        help="this is running on an EC2 Ray cluster",
     )
     args = parser.parse_args()
     with mlflow.start_run():
