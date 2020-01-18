@@ -13,6 +13,7 @@ import mlflow
 import ray
 from ray import tune
 from ray.rllib.utils import try_import_tf
+
 # from ray.rllib.agents.ppo import PPOTrainer, DEFAULT_CONFIG
 # from ray.rllib.agents.dqn import DEFAULT_CONFIG
 # from ray.rllib.agents.dqn.apex import ApexTrainer, APEX_DEFAULT_CONFIG
@@ -44,43 +45,38 @@ def run_ppo():
     #     mlflow.log_metric("episode_reward_mean", res["episode_reward_mean"], step=i)
 
     tune.run(
-       "PPO",
-       stop={
-           "timesteps_total": 30000,
-       },
-       config={
-           "env": Nick2048Gym,  # or "corridor" if registered above
-           "num_workers": 2,  # parallelism
-       },
+        "PPO",
+        stop={"timesteps_total": 30000,},
+        config={
+            "env": Nick2048Gym,  # or "corridor" if registered above
+            "num_workers": 2,  # parallelism
+        },
     )
 
 
 def run_dqn():
-    tune.run("DQN",
-             stop={
-                 "timesteps_total": 30000,
-             },
-             config={
-                 "env": Nick2048Gym,
-                 "num_workers": 2,  # parallelism
-             })
+    tune.run(
+        "DQN",
+        stop={"timesteps_total": 30000,},
+        config={"env": Nick2048Gym, "num_workers": 2,},  # parallelism
+    )
 
 
 def run_apex():
-    tune.run("APEX",
-             stop={
-                 "timesteps_total": 30000,
-             },
-             config={
-                 "env": Nick2048Gym,
-                 "num_workers": 2,  # parallelism
-                 "num_gpus": 0,
-             })
+    tune.run(
+        "APEX",
+        stop={"timesteps_total": 30000,},
+        config={"env": Nick2048Gym, "num_workers": 2, "num_gpus": 0,},  # parallelism
+    )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ec2", action='store_true', description='this is running on an EC2 Ray cluster')
+    parser.add_argument(
+        "--ec2",
+        action="store_true",
+        description="this is running on an EC2 Ray cluster",
+    )
     args = parser.parse_args()
     with mlflow.start_run():
         if args.ec2:
@@ -91,4 +87,4 @@ if __name__ == "__main__":
             ray.init()
             run_ppo()
 
-        #run_dqn()
+        # run_dqn()
