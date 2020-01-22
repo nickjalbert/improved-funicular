@@ -46,11 +46,11 @@ def run_ppo():
 
     tune.run(
         "PPO",
-        stop={"timesteps_total": 25000000,},
+        stop={"timesteps_total": 100000000,},
         config={
             "env": Nick2048Gym,  # or "corridor" if registered above
-            "num_workers": 9,  # parallelism
-            "num_gpus": 1,
+            "num_workers": 39,  # parallelism
+            "num_gpus": 4,
 
             "num_sgd_iter": 10,
             "sgd_minibatch_size": 512,
@@ -60,7 +60,7 @@ def run_ppo():
             "clip_rewards": True,
             "clip_param": 0.1,
 
-            "vf_clip_param": tune.grid_search([10.0, 100.0, 1000.0, 10000.0]),
+            "vf_clip_param": 1000000.0,
             "entropy_coeff": 0.01,
             "train_batch_size": 5000,
             "sample_batch_size": 100,
@@ -72,12 +72,43 @@ def run_ppo():
 
 
 
+def     run_impala():
+        tune.run(
+            "IMPALA",
+        stop={"timesteps_total": 2000000,},
+        config={
+            "env": Nick2048Gym,
+            "num_workers": 39,  # parallelism
+            #"num_envs_per_worker": 5,  # parallelism
+            "num_gpus": 4,
+            #"train_batch_size": 1000,
+            #"sample_batch_size": 100,
+        },
+    )
+
+def     run_a2c():
+        tune.run(
+            "A2C",
+        stop={"timesteps_total": 2000000,},
+        config={
+            "env": Nick2048Gym,
+            "num_workers": 39,  # parallelism
+            #"num_envs_per_worker": 5,  # parallelism
+            "num_gpus": 4,
+            #"train_batch_size": 1000,
+            #"sample_batch_size": 100,
+        },
+    )
 
 def     run_dqn():
         tune.run(
             "DQN",
-        stop={"timesteps_total": 30000,},
-        config={"env": Nick2048Gym, "num_workers": 2}
+        stop={"timesteps_total": 2000000,},
+        config={
+            "env": Nick2048Gym,
+            "num_workers": 39,
+            "num_gpus": 4,
+        }
     )
 
 
@@ -99,10 +130,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
     #with mlflow.start_run():
     if args.ec2:
-        print("running APEX in Ray on this EC2 cluster")
+        print("running algo on Ray on this EC2 cluster")
         ray.init(address="auto")
         #run_apex()
-        run_ppo()
+        #run_ppo()
+        #run_impala()
+        #run_a2c()
+        run_dqn()
     else:
         ray.init()
         run_ppo()
