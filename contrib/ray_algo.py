@@ -46,17 +46,36 @@ def run_ppo():
 
     tune.run(
         "PPO",
-        stop={"timesteps_total": 30000,},
+        stop={"timesteps_total": 25000000,},
         config={
             "env": Nick2048Gym,  # or "corridor" if registered above
-            "num_workers": 2,  # parallelism
+            "num_workers": 9,  # parallelism
+            "num_gpus": 1,
+
+            "num_sgd_iter": 10,
+            "sgd_minibatch_size": 512,
+            # copied from https://github.com/ray-project/rl-experiments/blob/master/atari-ppo/atari-ppo.yaml
+            "lambda": 0.95,
+            "kl_coeff": 0.5,
+            "clip_rewards": True,
+            "clip_param": 0.1,
+
+            "vf_clip_param": tune.grid_search([10.0, 100.0, 1000.0, 10000.0]),
+            "entropy_coeff": 0.01,
+            "train_batch_size": 5000,
+            "sample_batch_size": 100,
+            "batch_mode": "truncate_episodes",
+            "observation_filter": "NoFilter",
+            "vf_share_layers": "true",
         },
     )
 
 
-def run_dqn():
-    tune.run(
-        "DQN",
+
+
+def     run_dqn():
+        tune.run(
+            "DQN",
         stop={"timesteps_total": 30000,},
         config={"env": Nick2048Gym, "num_workers": 2}
     )
@@ -66,7 +85,7 @@ def run_apex():
     tune.run(
         "APEX",
         stop={"timesteps_total": 1000000,},
-        config={"env": Nick2048Gym, "num_workers": 7, "num_gpus": 1}
+        config={"env": Nick2048Gym, "num_workers": 27, "num_gpus": 1}
     )
 
 
@@ -78,13 +97,13 @@ if __name__ == "__main__":
         help="this is running on an EC2 Ray cluster",
     )
     args = parser.parse_args()
-    with mlflow.start_run():
-        if args.ec2:
-            print("running APEX in Ray on this EC2 cluster")
-            ray.init(address="auto")
-            run_apex()
-        else:
-            ray.init()
-            run_ppo()
+    #with mlflow.start_run():
+    if args.ec2:
+        print("running APEX in Ray on this EC2 cluster")
+        ray.init(address="auto")
+        run_apex()
+    else:
+        ray.init()
+        run_ppo()
 
         # run_dqn()
