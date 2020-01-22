@@ -101,7 +101,8 @@ if __name__ == "__main__":
     if args.ec2:
         print("running APEX in Ray on this EC2 cluster")
         ray.init(address="auto")
-        run_apex()
+        #run_apex()
+        run_ppo()
     else:
         ray.init()
         run_ppo()
