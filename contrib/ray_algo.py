@@ -9,7 +9,6 @@ You can visualize experiment results in ~/ray_results using TensorBoard.
 
 import argparse
 from envs.nick_gym_adapter import Nick2048Gym
-import mlflow
 import ray
 from ray import tune
 from ray.rllib.utils import try_import_tf
@@ -46,12 +45,11 @@ def run_ppo():
 
     tune.run(
         "PPO",
-        stop={"timesteps_total": 100000000,},
+        stop={"timesteps_total": 100000000},
         config={
             "env": Nick2048Gym,  # or "corridor" if registered above
             "num_workers": 39,  # parallelism
             "num_gpus": 4,
-
             "num_sgd_iter": 10,
             "sgd_minibatch_size": 512,
             # copied from https://github.com/ray-project/rl-experiments/blob/master/atari-ppo/atari-ppo.yaml
@@ -59,7 +57,6 @@ def run_ppo():
             "kl_coeff": 0.5,
             "clip_rewards": True,
             "clip_param": 0.1,
-
             "vf_clip_param": 1000000.0,
             "entropy_coeff": 0.01,
             "train_batch_size": 5000,
@@ -71,71 +68,65 @@ def run_ppo():
     )
 
 
-
-def     run_impala():
-        tune.run(
-            "IMPALA",
-        stop={"timesteps_total": 2000000,},
+def run_impala():
+    tune.run(
+        "IMPALA",
+        stop={"timesteps_total": 2000000},
         config={
             "env": Nick2048Gym,
             "num_workers": 39,  # parallelism
-            #"num_envs_per_worker": 5,  # parallelism
+            # "num_envs_per_worker": 5,  # parallelism
             "num_gpus": 4,
-            #"train_batch_size": 1000,
-            #"sample_batch_size": 100,
+            # "train_batch_size": 1000,
+            # "sample_batch_size": 100,
         },
     )
 
-def     run_a2c():
-        tune.run(
-            "A2C",
-        stop={"timesteps_total": 2000000,},
+
+def run_a2c():
+    tune.run(
+        "A2C",
+        stop={"timesteps_total": 2000000},
         config={
             "env": Nick2048Gym,
             "num_workers": 39,  # parallelism
-            #"num_envs_per_worker": 5,  # parallelism
+            # "num_envs_per_worker": 5,  # parallelism
             "num_gpus": 4,
-            #"train_batch_size": 1000,
-            #"sample_batch_size": 100,
+            # "train_batch_size": 1000,
+            # "sample_batch_size": 100,
         },
     )
 
-def     run_dqn():
-        tune.run(
-            "DQN",
-        stop={"timesteps_total": 2000000,},
-        config={
-            "env": Nick2048Gym,
-            "num_workers": 39,
-            "num_gpus": 4,
-        }
+
+def run_dqn():
+    tune.run(
+        "DQN",
+        stop={"timesteps_total": 2000000},
+        config={"env": Nick2048Gym, "num_workers": 39, "num_gpus": 4},
     )
 
 
 def run_apex():
     tune.run(
         "APEX",
-        stop={"timesteps_total": 1000000,},
-        config={"env": Nick2048Gym, "num_workers": 27, "num_gpus": 1}
+        stop={"timesteps_total": 1000000},
+        config={"env": Nick2048Gym, "num_workers": 27, "num_gpus": 1},
     )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--ec2",
-        action="store_true",
-        help="this is running on an EC2 Ray cluster",
+        "--ec2", action="store_true", help="this is running on an EC2 Ray cluster",
     )
     args = parser.parse_args()
-    #with mlflow.start_run():
     if args.ec2:
         print("running algo on Ray on this EC2 cluster")
         ray.init(address="auto")
-        #run_apex()
-        #run_ppo()
-        #run_impala()
-        #run_a2c()
+        # run_apex()
+        # run_ppo()
+        # run_impala()
+        # run_a2c()
         run_dqn()
     else:
         ray.init()
