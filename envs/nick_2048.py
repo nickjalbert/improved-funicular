@@ -23,10 +23,10 @@ class Nick2048(Base2048):
     DOWN = 1
     LEFT = 2
     UP = 3
+    action_space = Discrete(4)  # action space is: [R, D, U, L]
+    observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
 
     def __init__(self, config=None):
-        self.action_space = Discrete(4)  # action space is: [R, D, U, L]
-        self.observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
         self.reset()
 
     @property
