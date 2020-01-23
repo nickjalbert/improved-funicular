@@ -30,6 +30,19 @@ class Nick2048(Base2048):
         self.reset()
 
     @classmethod
+    def get_afterstate(cls, board, action):
+        game = cls()
+        game.set_board(board)
+        do_action = {
+            cls.UP: game._do_up,
+            cls.RIGHT: game._do_right,
+            cls.DOWN: game._do_down,
+            cls.LEFT: game._do_left,
+        }
+        do_action[action]()
+        return game.board
+
+    @classmethod
     def get_canonical_board(cls, board):
         r0 = board
         r90 = cls.rotate_board_right(board)
