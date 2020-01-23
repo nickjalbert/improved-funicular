@@ -1,3 +1,4 @@
+import random
 from envs.nick_2048 import Nick2048
 
 
@@ -219,3 +220,42 @@ def test_reflect_board():
     assert reflected_x_1 == (0, 0, 0, 8, 4, 4, 0, 0, 2, 0, 0, 0, 2, 0, 4, 8)
     reflected_x_2 = Nick2048.reflect_board_across_x(reflected_x_1)
     assert reflected_x_2 == board
+
+
+def _generate_random_board():
+    nums = [0, 0, 0, 0, 0, 2, 2, 2, 2, 4, 4, 4, 8, 8, 16, 32]
+    return tuple([random.choice(nums) for i in range(16)])
+
+
+def test_get_canonical():
+    for i in range(100):
+        board = _generate_random_board()
+        canonical = Nick2048.get_canonical_board(board)
+        r90 = Nick2048.rotate_board_right(board)
+        r180 = Nick2048.rotate_board_right(r90)
+        r270 = Nick2048.rotate_board_right(r180)
+        r360 = Nick2048.rotate_board_right(r270)
+        xr0 = Nick2048.reflect_board_across_x(board)
+        xr90 = Nick2048.rotate_board_right(xr0)
+        xr180 = Nick2048.rotate_board_right(xr90)
+        xr270 = Nick2048.rotate_board_right(xr180)
+        xr360 = Nick2048.rotate_board_right(xr270)
+        yr0 = Nick2048.reflect_board_across_y(board)
+        yr90 = Nick2048.rotate_board_right(yr0)
+        yr180 = Nick2048.rotate_board_right(yr90)
+        yr270 = Nick2048.rotate_board_right(yr180)
+        yr360 = Nick2048.rotate_board_right(yr270)
+        assert canonical == Nick2048.get_canonical_board(r90)
+        assert canonical == Nick2048.get_canonical_board(r180)
+        assert canonical == Nick2048.get_canonical_board(r270)
+        assert canonical == Nick2048.get_canonical_board(r360)
+        assert canonical == Nick2048.get_canonical_board(xr0)
+        assert canonical == Nick2048.get_canonical_board(xr90)
+        assert canonical == Nick2048.get_canonical_board(xr180)
+        assert canonical == Nick2048.get_canonical_board(xr270)
+        assert canonical == Nick2048.get_canonical_board(xr360)
+        assert canonical == Nick2048.get_canonical_board(yr0)
+        assert canonical == Nick2048.get_canonical_board(yr90)
+        assert canonical == Nick2048.get_canonical_board(yr180)
+        assert canonical == Nick2048.get_canonical_board(yr270)
+        assert canonical == Nick2048.get_canonical_board(yr360)
