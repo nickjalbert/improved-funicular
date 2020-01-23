@@ -174,25 +174,25 @@ def test_rotate_board():
     # 2 0 0 0
     # 4 4 0 0
     # 0 0 0 8
-    board = tuple([2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8])
+    board = (2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8)
     result_90 = Nick2048.rotate_board_right(board)
     # 0 4 2 2
     # 0 4 0 0
     # 0 0 0 4
     # 8 0 0 8
-    assert result_90 == tuple([0, 4, 2, 2, 0, 4, 0, 0, 0, 0, 0, 4, 8, 0, 0, 8])
+    assert result_90 == (0, 4, 2, 2, 0, 4, 0, 0, 0, 0, 0, 4, 8, 0, 0, 8)
     result_180 = Nick2048.rotate_board_right(result_90)
     # 8 0 0 0
     # 0 0 4 4
     # 0 0 0 2
     # 8 4 0 2
-    assert result_180 == tuple([8, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 2, 8, 4, 0, 2])
+    assert result_180 == (8, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 2, 8, 4, 0, 2)
     result_270 = Nick2048.rotate_board_right(result_180)
     # 8 0 0 8
     # 4 0 0 0
     # 0 0 4 0
     # 2 2 4 0
-    assert result_270 == tuple([8, 0, 0, 8, 4, 0, 0, 0, 0, 0, 4, 0, 2, 2, 4, 0])
+    assert result_270 == (8, 0, 0, 8, 4, 0, 0, 0, 0, 0, 4, 0, 2, 2, 4, 0)
     result_360 = Nick2048.rotate_board_right(result_270)
     assert result_360 == board
 
@@ -202,13 +202,13 @@ def test_reflect_board():
     # 2 0 0 0
     # 4 4 0 0
     # 0 0 0 8
-    board = tuple([2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8])
+    board = (2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8)
     reflected_y_1 = Nick2048.reflect_board_across_y(board)
     # 8 4 0 2
     # 0 0 0 2
     # 0 0 4 4
     # 8 0 0 0
-    assert reflected_y_1 == tuple([8, 4, 0, 2, 0, 0, 0, 2, 0, 0, 4, 4, 8, 0, 0, 0])
+    assert reflected_y_1 == (8, 4, 0, 2, 0, 0, 0, 2, 0, 0, 4, 4, 8, 0, 0, 0)
     reflected_y_2 = Nick2048.reflect_board_across_y(reflected_y_1)
     assert reflected_y_2 == board
     reflected_x_1 = Nick2048.reflect_board_across_x(board)
@@ -216,6 +216,6 @@ def test_reflect_board():
     # 4 4 0 0
     # 2 0 0 0
     # 2 0 4 8
-    assert reflected_x_1 == tuple([0, 0, 0, 8, 4, 4, 0, 0, 2, 0, 0, 0, 2, 0, 4, 8])
+    assert reflected_x_1 == (0, 0, 0, 8, 4, 4, 0, 0, 2, 0, 0, 0, 2, 0, 4, 8)
     reflected_x_2 = Nick2048.reflect_board_across_x(reflected_x_1)
     assert reflected_x_2 == board

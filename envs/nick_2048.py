@@ -29,6 +29,69 @@ class Nick2048(Base2048):
     def __init__(self, config=None):
         self.reset()
 
+    @classmethod
+    def reflect_board_across_x(cls, board):
+        return (
+            board[12],
+            board[13],
+            board[14],
+            board[15],
+            board[8],
+            board[9],
+            board[10],
+            board[11],
+            board[4],
+            board[5],
+            board[6],
+            board[7],
+            board[0],
+            board[1],
+            board[2],
+            board[3],
+        )
+
+    @classmethod
+    def reflect_board_across_y(cls, board):
+        return (
+            board[3],
+            board[2],
+            board[1],
+            board[0],
+            board[7],
+            board[6],
+            board[5],
+            board[4],
+            board[11],
+            board[10],
+            board[9],
+            board[8],
+            board[15],
+            board[14],
+            board[13],
+            board[12],
+        )
+
+    @classmethod
+    def rotate_board_right(cls, board):
+        return (
+            board[12],
+            board[8],
+            board[4],
+            board[0],
+            board[13],
+            board[9],
+            board[5],
+            board[1],
+            board[14],
+            board[10],
+            board[6],
+            board[2],
+            board[15],
+            board[11],
+            board[7],
+            board[3],
+        )
+
     @property
     def done(self):
         if len(self.empty_indexes) > 0:
@@ -150,45 +213,141 @@ class Nick2048(Base2048):
         return idx
 
     def _do_up(self):
-        sq1, r1 = squash_lookup[(self.board[0], self.board[4], self.board[8], self.board[12])]
-        sq2, r2 = squash_lookup[(self.board[1], self.board[5], self.board[9], self.board[13])]
-        sq3, r3 = squash_lookup[(self.board[2], self.board[6], self.board[10], self.board[14])]
-        sq4, r4 = squash_lookup[(self.board[3], self.board[7], self.board[11], self.board[15])]
-        self.set_board((sq1[0], sq2[0], sq3[0], sq4[0],
-                        sq1[1], sq2[1], sq3[1], sq4[1],
-                        sq1[2], sq2[2], sq3[2], sq4[2],
-                        sq1[3], sq2[3], sq3[3], sq4[3]))
+        sq1, r1 = squash_lookup[
+            (self.board[0], self.board[4], self.board[8], self.board[12])
+        ]
+        sq2, r2 = squash_lookup[
+            (self.board[1], self.board[5], self.board[9], self.board[13])
+        ]
+        sq3, r3 = squash_lookup[
+            (self.board[2], self.board[6], self.board[10], self.board[14])
+        ]
+        sq4, r4 = squash_lookup[
+            (self.board[3], self.board[7], self.board[11], self.board[15])
+        ]
+        self.set_board(
+            (
+                sq1[0],
+                sq2[0],
+                sq3[0],
+                sq4[0],
+                sq1[1],
+                sq2[1],
+                sq3[1],
+                sq4[1],
+                sq1[2],
+                sq2[2],
+                sq3[2],
+                sq4[2],
+                sq1[3],
+                sq2[3],
+                sq3[3],
+                sq4[3],
+            )
+        )
         self.score += r1 + r2 + r3 + r4
 
     def _do_right(self):
-        sq1, r1 = squash_lookup[(self.board[3], self.board[2], self.board[1], self.board[0])]
-        sq2, r2 = squash_lookup[(self.board[7], self.board[6], self.board[5], self.board[4])]
-        sq3, r3 = squash_lookup[(self.board[11], self.board[10], self.board[9], self.board[8])]
-        sq4, r4 = squash_lookup[(self.board[15], self.board[14], self.board[13], self.board[12])]
-        self.set_board((sq1[3], sq1[2], sq1[1], sq1[0],
-                        sq2[3], sq2[2], sq2[1], sq2[0],
-                        sq3[3], sq3[2], sq3[1], sq3[0],
-                        sq4[3], sq4[2], sq4[1], sq4[0]))
+        sq1, r1 = squash_lookup[
+            (self.board[3], self.board[2], self.board[1], self.board[0])
+        ]
+        sq2, r2 = squash_lookup[
+            (self.board[7], self.board[6], self.board[5], self.board[4])
+        ]
+        sq3, r3 = squash_lookup[
+            (self.board[11], self.board[10], self.board[9], self.board[8])
+        ]
+        sq4, r4 = squash_lookup[
+            (self.board[15], self.board[14], self.board[13], self.board[12])
+        ]
+        self.set_board(
+            (
+                sq1[3],
+                sq1[2],
+                sq1[1],
+                sq1[0],
+                sq2[3],
+                sq2[2],
+                sq2[1],
+                sq2[0],
+                sq3[3],
+                sq3[2],
+                sq3[1],
+                sq3[0],
+                sq4[3],
+                sq4[2],
+                sq4[1],
+                sq4[0],
+            )
+        )
         self.score += r1 + r2 + r3 + r4
 
     def _do_down(self):
-        sq1, r1 = squash_lookup[(self.board[12], self.board[8], self.board[4], self.board[0])]
-        sq2, r2 = squash_lookup[(self.board[13], self.board[9], self.board[5], self.board[1])]
-        sq3, r3 = squash_lookup[(self.board[14], self.board[10], self.board[6], self.board[2])]
-        sq4, r4 = squash_lookup[(self.board[15], self.board[11], self.board[7], self.board[3])]
-        self.set_board((sq1[3], sq2[3], sq3[3], sq4[3],
-                        sq1[2], sq2[2], sq3[2], sq4[2],
-                        sq1[1], sq2[1], sq3[1], sq4[1],
-                        sq1[0], sq2[0], sq3[0], sq4[0]))
+        sq1, r1 = squash_lookup[
+            (self.board[12], self.board[8], self.board[4], self.board[0])
+        ]
+        sq2, r2 = squash_lookup[
+            (self.board[13], self.board[9], self.board[5], self.board[1])
+        ]
+        sq3, r3 = squash_lookup[
+            (self.board[14], self.board[10], self.board[6], self.board[2])
+        ]
+        sq4, r4 = squash_lookup[
+            (self.board[15], self.board[11], self.board[7], self.board[3])
+        ]
+        self.set_board(
+            (
+                sq1[3],
+                sq2[3],
+                sq3[3],
+                sq4[3],
+                sq1[2],
+                sq2[2],
+                sq3[2],
+                sq4[2],
+                sq1[1],
+                sq2[1],
+                sq3[1],
+                sq4[1],
+                sq1[0],
+                sq2[0],
+                sq3[0],
+                sq4[0],
+            )
+        )
         self.score += r1 + r2 + r3 + r4
 
     def _do_left(self):
-        sq1, r1 = squash_lookup[(self.board[0], self.board[1], self.board[2], self.board[3])]
-        sq2, r2 = squash_lookup[(self.board[4], self.board[5], self.board[6], self.board[7])]
-        sq3, r3 = squash_lookup[(self.board[8], self.board[9], self.board[10], self.board[11])]
-        sq4, r4 = squash_lookup[(self.board[12], self.board[13], self.board[14], self.board[15])]
-        self.set_board((sq1[0], sq1[1], sq1[2], sq1[3],
-                        sq2[0], sq2[1], sq2[2], sq2[3],
-                        sq3[0], sq3[1], sq3[2], sq3[3],
-                        sq4[0], sq4[1], sq4[2], sq4[3]))
+        sq1, r1 = squash_lookup[
+            (self.board[0], self.board[1], self.board[2], self.board[3])
+        ]
+        sq2, r2 = squash_lookup[
+            (self.board[4], self.board[5], self.board[6], self.board[7])
+        ]
+        sq3, r3 = squash_lookup[
+            (self.board[8], self.board[9], self.board[10], self.board[11])
+        ]
+        sq4, r4 = squash_lookup[
+            (self.board[12], self.board[13], self.board[14], self.board[15])
+        ]
+        self.set_board(
+            (
+                sq1[0],
+                sq1[1],
+                sq1[2],
+                sq1[3],
+                sq2[0],
+                sq2[1],
+                sq2[2],
+                sq2[3],
+                sq3[0],
+                sq3[1],
+                sq3[2],
+                sq3[3],
+                sq4[0],
+                sq4[1],
+                sq4[2],
+                sq4[3],
+            )
+        )
         self.score += r1 + r2 + r3 + r4
