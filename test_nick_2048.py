@@ -1,3 +1,4 @@
+import random
 from envs.nick_2048 import Nick2048
 
 
@@ -167,3 +168,110 @@ def test_get_valid_actions_by_reward():
     assert action_rewards[3] in up_down
     for (a, r, b) in Nick2048.get_valid_actions_by_reward_from_board(board):
         assert (a, r) in action_rewards
+
+
+def test_rotate_board():
+    # 2 0 4 8
+    # 2 0 0 0
+    # 4 4 0 0
+    # 0 0 0 8
+    board = (2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8)
+    result_90 = Nick2048.rotate_board_right(board)
+    # 0 4 2 2
+    # 0 4 0 0
+    # 0 0 0 4
+    # 8 0 0 8
+    assert result_90 == (0, 4, 2, 2, 0, 4, 0, 0, 0, 0, 0, 4, 8, 0, 0, 8)
+    result_180 = Nick2048.rotate_board_right(result_90)
+    # 8 0 0 0
+    # 0 0 4 4
+    # 0 0 0 2
+    # 8 4 0 2
+    assert result_180 == (8, 0, 0, 0, 0, 0, 4, 4, 0, 0, 0, 2, 8, 4, 0, 2)
+    result_270 = Nick2048.rotate_board_right(result_180)
+    # 8 0 0 8
+    # 4 0 0 0
+    # 0 0 4 0
+    # 2 2 4 0
+    assert result_270 == (8, 0, 0, 8, 4, 0, 0, 0, 0, 0, 4, 0, 2, 2, 4, 0)
+    result_360 = Nick2048.rotate_board_right(result_270)
+    assert result_360 == board
+
+
+def test_reflect_board():
+    # 2 0 4 8
+    # 2 0 0 0
+    # 4 4 0 0
+    # 0 0 0 8
+    board = (2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8)
+    reflected_y_1 = Nick2048.reflect_board_across_y(board)
+    # 8 4 0 2
+    # 0 0 0 2
+    # 0 0 4 4
+    # 8 0 0 0
+    assert reflected_y_1 == (8, 4, 0, 2, 0, 0, 0, 2, 0, 0, 4, 4, 8, 0, 0, 0)
+    reflected_y_2 = Nick2048.reflect_board_across_y(reflected_y_1)
+    assert reflected_y_2 == board
+    reflected_x_1 = Nick2048.reflect_board_across_x(board)
+    # 0 0 0 8
+    # 4 4 0 0
+    # 2 0 0 0
+    # 2 0 4 8
+    assert reflected_x_1 == (0, 0, 0, 8, 4, 4, 0, 0, 2, 0, 0, 0, 2, 0, 4, 8)
+    reflected_x_2 = Nick2048.reflect_board_across_x(reflected_x_1)
+    assert reflected_x_2 == board
+
+
+def _generate_random_board():
+    nums = [0, 0, 0, 0, 0, 2, 2, 2, 2, 4, 4, 4, 8, 8, 16, 32]
+    return tuple([random.choice(nums) for i in range(16)])
+
+
+def test_get_canonical():
+    for i in range(100):
+        board = _generate_random_board()
+        canonical = Nick2048.get_canonical_board(board)
+        r90 = Nick2048.rotate_board_right(board)
+        r180 = Nick2048.rotate_board_right(r90)
+        r270 = Nick2048.rotate_board_right(r180)
+        r360 = Nick2048.rotate_board_right(r270)
+        xr0 = Nick2048.reflect_board_across_x(board)
+        xr90 = Nick2048.rotate_board_right(xr0)
+        xr180 = Nick2048.rotate_board_right(xr90)
+        xr270 = Nick2048.rotate_board_right(xr180)
+        xr360 = Nick2048.rotate_board_right(xr270)
+        yr0 = Nick2048.reflect_board_across_y(board)
+        yr90 = Nick2048.rotate_board_right(yr0)
+        yr180 = Nick2048.rotate_board_right(yr90)
+        yr270 = Nick2048.rotate_board_right(yr180)
+        yr360 = Nick2048.rotate_board_right(yr270)
+        assert canonical == Nick2048.get_canonical_board(r90)
+        assert canonical == Nick2048.get_canonical_board(r180)
+        assert canonical == Nick2048.get_canonical_board(r270)
+        assert canonical == Nick2048.get_canonical_board(r360)
+        assert canonical == Nick2048.get_canonical_board(xr0)
+        assert canonical == Nick2048.get_canonical_board(xr90)
+        assert canonical == Nick2048.get_canonical_board(xr180)
+        assert canonical == Nick2048.get_canonical_board(xr270)
+        assert canonical == Nick2048.get_canonical_board(xr360)
+        assert canonical == Nick2048.get_canonical_board(yr0)
+        assert canonical == Nick2048.get_canonical_board(yr90)
+        assert canonical == Nick2048.get_canonical_board(yr180)
+        assert canonical == Nick2048.get_canonical_board(yr270)
+        assert canonical == Nick2048.get_canonical_board(yr360)
+
+
+def test_get_afterstate():
+    # 2 0 4 8
+    # 2 0 0 0
+    # 4 4 0 0
+    # 0 0 0 8
+    board = (2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8)
+    after_up = Nick2048.get_afterstate(board, Nick2048.UP)
+    assert after_up == (4, 4, 4, 16, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    after_down = Nick2048.get_afterstate(board, Nick2048.DOWN)
+    assert after_down == (0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 4, 4, 16)
+    after_left = Nick2048.get_afterstate(board, Nick2048.LEFT)
+    assert after_left == (2, 4, 8, 0, 2, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
+    after_right = Nick2048.get_afterstate(board, Nick2048.RIGHT)
+    assert after_right == (0, 2, 4, 8, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 8)
