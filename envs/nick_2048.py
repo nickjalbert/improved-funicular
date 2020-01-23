@@ -250,7 +250,8 @@ class Nick2048(Base2048):
             idx = random.choice(self.empty_indexes)
         except IndexError:
             return -1
-        board = self.board[:idx] + (value,) + self.board[idx + 1:]
+        idx_plus_one = idx + 1
+        board = self.board[:idx] + (value,) + self.board[idx_plus_one:]
         self.set_board(board)
         return idx
 
