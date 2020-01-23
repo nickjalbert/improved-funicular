@@ -79,6 +79,7 @@ STRATEGIES = {
     "mcts": try_mcts,
     "mcts_dynamic": try_mcts_dynamic,
     "lookahead_with_rollout": try_lookahead_with_rollout,
+    "nick_td": None,  # only import if used for perf
 }
 
 
@@ -129,6 +130,10 @@ if __name__ == "__main__":
         f"\nRunning {trial_count} trials with "
         f"{impl_name}'s impl to test {strat_name}\n"
     )
+    if strat_name == "nick_td":
+        from strategies.nick_td import try_nick_td
+
+        STRATEGIES["nick_td"] = try_nick_td
 
     implementation = IMPLEMENTATIONS[impl_name]
     strategy = STRATEGIES[strat_name]
