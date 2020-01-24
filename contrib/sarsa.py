@@ -10,7 +10,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ray.tune import Trainable
 
-logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 class Sarsa(Trainable):
@@ -155,15 +155,19 @@ class Sarsa(Trainable):
                     "%s steps in episode %s, score: %s, running_avg_score: %.0f"
                     % (step_num + 1, episode_num, game_score, avg_game_score)
                 )
-                mlflow.log_metric("game scores", game_score)
-                mlflow.log_metric("avg game score", avg_game_score)
-                mlflow.log_metric("game num steps", step_num + 1)
-                mlflow.log_metric("avg num steps", np.mean(game_num_steps))
+                mlflow.log_metric("game scores", game_score, step=episode_num)
+                mlflow.log_metric("avg game score", avg_game_score, step=episode_num)
+                mlflow.log_metric("game num steps", step_num + 1, step=episode_num)
+                mlflow.log_metric("avg num steps", np.mean(game_num_steps), step=episode_num)
+            return {"avg_game_score": avg_game_score,
+                    "avg_num_steps": np.mean(game_num_steps),
+                    "episodes_total": episode_num + 1,
+                    "timesteps_total": np.sum(game_num_steps)}
 
 
 if __name__ == "__main__":
     params = {}
-    params["num_episodes"] = 1000000
+    params["num_episodes"] = 100000000
     params["max_steps_per_episode"] = 500
     params["alpha"] = 0.95
     params["learning_rate"] = 0.001
