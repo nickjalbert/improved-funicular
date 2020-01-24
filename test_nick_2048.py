@@ -4,7 +4,7 @@ from envs.nick_2048 import Nick2048
 
 def test_boardenv_random_direction():
     for _ in range(50):
-        assert Nick2048.random_direction() in [0, 1, 2, 3]
+        assert Nick2048.action_space.sample() in [0, 1, 2, 3]
 
 
 def test_boardenv_init():

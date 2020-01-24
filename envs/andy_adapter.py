@@ -46,7 +46,3 @@ class Andy2048(Base2048):
 
     def set_board(self, board):
         self.andy.state = np.array(board[:]).reshape(4, 4)
-
-    @classmethod
-    def random_direction(cls):
-        return BoardEnv.random_direction()

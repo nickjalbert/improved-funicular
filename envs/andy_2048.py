@@ -2,6 +2,7 @@
 import random
 import pandas as pd
 import numpy as np
+from gym.spaces import Discrete, Box
 
 
 class BoardEnv:
@@ -9,9 +10,10 @@ class BoardEnv:
     DOWN = 1
     LEFT = 2
     UP = 3
+    action_space = Discrete(4)  # action space is: [R, D, U, L]
+    observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
 
     def __init__(self, width=4, init_spots_filled=2):
-        self.action_space = [self.UP, self.RIGHT, self.DOWN, self.LEFT]
         assert 0 <= init_spots_filled <= width ** 2
         self.value = 0
         self.width = width
@@ -32,10 +34,6 @@ class BoardEnv:
         b = cls(width, init_spots_filled)
         b.state = state
         return b
-
-    @classmethod
-    def random_direction(cls):
-        return np.random.randint(4)
 
     def __str__(self):
         return pd.DataFrame(self.state).to_string()

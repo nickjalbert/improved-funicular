@@ -6,7 +6,7 @@ from envs.andy_adapter import Andy2048
 
 def test_boardenv_random_direction():
     for _ in range(50):
-        assert BoardEnv.random_direction() in [0, 1, 2, 3]
+        assert BoardEnv.action_space.sample() in [0, 1, 2, 3]
 
 
 def test_boardenv_init():
