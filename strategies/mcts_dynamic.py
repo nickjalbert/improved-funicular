@@ -47,7 +47,7 @@ def train_tabular_mcts(
                 np.asarray(game.board),
             )
             if random.random() < prob_rand_action:
-                action = cls.random_direction()
+                action = cls.action_space.sample()
             else:
                 action = policy_fn(curr_board, n, sum_ret)
             states.append(curr_board)

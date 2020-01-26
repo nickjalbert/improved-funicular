@@ -205,10 +205,6 @@ class Nick2048(Base2048):
             return False
         return True
 
-    @classmethod
-    def random_direction(cls):
-        return random.choice([cls.UP, cls.DOWN, cls.LEFT, cls.RIGHT])
-
     def get_state(self):
         return self.board, self.score, self.done
 
