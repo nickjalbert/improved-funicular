@@ -39,13 +39,15 @@ def dfs_search():
             if game.score > max_score:
                 max_score = game.score
                 max_action_history = action_history[:]
+                max_elapsed_time = time.time() - start
             if complete_games % 1001 == 1000:
                 print(
                     f"Random seed: {SEED}\n"
                     f"Max action history: {max_action_history}\n"
                     f"Max Score: {max_score}\n"
                     f"Max moves: {len(max_action_history)}\n"
-                    f"Elapsed time: {round(time.time() - start, 2)} sec\n"
+                    f"Max found after: {round(max_elapsed_time, 2)} sec\n"
+                    f"Total elapsed time: {round(time.time() - start, 2)} sec\n"
                     f"Search stack size: {len(search_stack)}\n"
                     f"Complete Games: {complete_games}\n"
                     f"Complete Games: {complete_games}\n"
