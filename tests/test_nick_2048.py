@@ -281,7 +281,7 @@ def _run_game(game):
     boards = []
     action_order = [game.UP, game.DOWN, game.LEFT, game.RIGHT]
     while not game.done:
-        valid_actions = [a for a, _, _  in game.get_valid_actions()]
+        valid_actions = [a for a, _, _ in game.get_valid_actions()]
         # fix order that we'll perform valid actions
         for action in action_order:
             if action in valid_actions:
