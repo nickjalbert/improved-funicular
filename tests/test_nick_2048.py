@@ -1,3 +1,4 @@
+import time
 import random
 from envs.nick_2048 import Nick2048
 
@@ -279,15 +280,15 @@ def test_get_afterstate():
 
 def _run_game(game):
     boards = []
-    action_order = [game.UP, game.DOWN, game.LEFT, game.RIGHT]
+    ACTION_ORDER = [game.UP, game.DOWN, game.LEFT, game.RIGHT]
     while not game.done:
-        valid_actions = [a for a, _, _ in game.get_valid_actions()]
+        boards.append(game.board)
+        random.seed(time.time())
         # fix order that we'll perform valid actions
-        for action in action_order:
+        valid_actions = [a for a, _, _ in game.get_valid_actions()]
+        for action in ACTION_ORDER:
             if action in valid_actions:
                 break
-        boards.append(game.board)
-        action = random.choice(game.get_valid_actions())[0]
         game.step(action)
     boards.append(game.board)
     return boards
