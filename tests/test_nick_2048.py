@@ -275,3 +275,36 @@ def test_get_afterstate():
     assert after_left == (2, 4, 8, 0, 2, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
     after_right = Nick2048.get_afterstate(board, Nick2048.RIGHT)
     assert after_right == (0, 2, 4, 8, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 8)
+
+
+def _run_game(game):
+    boards = []
+    action_order = [game.UP, game.DOWN, game.LEFT, game.RIGHT]
+    while not game.done:
+        valid_actions = [a for a, _, _  in game.get_valid_actions()]
+        # fix order that we'll perform valid actions
+        for action in action_order:
+            if action in valid_actions:
+                break
+        boards.append(game.board)
+        action = random.choice(game.get_valid_actions())[0]
+        game.step(action)
+    boards.append(game.board)
+    return boards
+
+
+def test_no_randomness():
+    game1 = Nick2048(random_seed=13)
+    game2 = Nick2048(random_seed=13)
+    boards1 = _run_game(game1)
+    boards2 = _run_game(game2)
+    assert boards1 == boards2
+
+
+def test_randomness():
+    game1 = Nick2048()
+    game2 = Nick2048()
+    boards1 = _run_game(game1)
+    boards2 = _run_game(game2)
+    # If this fails, you either got REALLY unlucky or something is broken
+    assert boards1 != boards2
