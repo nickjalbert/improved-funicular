@@ -26,7 +26,8 @@ class Nick2048(Base2048):
     action_space = Discrete(4)  # action space is: [R, D, U, L]
     observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
 
-    def __init__(self, config=None):
+    def __init__(self, config=None, random_seed=None):
+        self.random_seed = random_seed
         self.reset()
 
     @classmethod
@@ -238,11 +239,17 @@ class Nick2048(Base2048):
         self.score = 0
         return self.board
 
+    def reseed(self):
+        if self.random_seed:
+            random.seed(self.random_seed)
+
     def add_new_random_number(self):
+        self.reseed()
         return self._set_random_position(2 if random.random() <= 0.9 else 4)
 
     def _set_random_position(self, value):
         try:
+            self.reseed()
             idx = random.choice(self.empty_indexes)
         except IndexError:
             return -1
