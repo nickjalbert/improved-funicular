@@ -1,5 +1,12 @@
+# requires PYTHONPATH to contain the top-level directory
+# i.e. the improved-funicular you checked out from github or run:
+# $ PYTHONPATH=. python tests/perf_benchmarks.py
+#
+# Alternatively, add a pth file to site-packages, for example
+# $ echo \`pwd\`/  > improved-funicular/lib/python3.7/site-packages/curr_dir.pth
+
 import time
-from nick_2048 import Nick2048
+from envs.nick_2048 import Nick2048
 from strategies.random import try_random
 
 

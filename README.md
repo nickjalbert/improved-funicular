@@ -38,6 +38,7 @@ Python 3.7.
 * `git clone https://github.com/nickjalbert/improved-funicular.git`
 * `cd improved-funicular`
 * `virtualenv improved-funicular`
+* `echo \`pwd\`/  > improved-funicular/lib/python3.7/site-packages/curr_dir.pth`
 * `source improved-funicular/bin/activate`
 * `pip install -r requirements.txt`
 * `python play_in_console.py nick` or `python play_in_console.py andy`
