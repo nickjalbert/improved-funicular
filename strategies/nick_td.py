@@ -15,7 +15,10 @@ from strategies.utility import do_trials
 alpha = 0.1
 epsilon = 0.1
 discount_rate = 0.95
+SEED = 13
 game = Nick2048()
+# Uncomment below to force deterministic games
+# game = Nick2048(random_seed=SEED)
 
 
 class StateValue:
@@ -77,6 +80,7 @@ state_value = StateValue()
 def td_learn():
     game.reset()
     while not game.done:
+        random.seed(time.time())
         if random.random() <= epsilon:
             take_random_step()
         else:
@@ -84,6 +88,7 @@ def td_learn():
 
 
 def take_random_step():
+    random.seed(time.time())
     action, _, _ = random.choice(game.get_valid_actions())
     afterstate = game.get_afterstate(game.board, action)
     canonical_prev_board = game.get_canonical_board(afterstate)
@@ -98,6 +103,7 @@ def get_max_action():
         board = game.get_afterstate(game.board, action)
         discounted_reward = state_value.get(board)
         value_actions.append((discounted_reward, action, board))
+    random.seed(time.time())
     random.shuffle(value_actions)
     return max(value_actions)
 
