@@ -1,5 +1,4 @@
 import statistics
-import random
 from strategies.utility import do_trials
 
 ROLLOUT_DEPTH_LIMIT = 15
