@@ -12,6 +12,11 @@ def softmax(x):
 
 
 def print_results(strategy, elapsed, step_counts, max_tiles, scores):
+    strategy_info = 'No strategy description'
+    try:
+        strategy_info = strategy.info
+    except AttributeError:
+        pass
     trial_count = len(step_counts)
     elapsed_per_trial = elapsed / trial_count
     elapsed = round(elapsed, 2)
@@ -27,7 +32,7 @@ def print_results(strategy, elapsed, step_counts, max_tiles, scores):
     median = statistics.median(scores) if trial_count > 1 else scores[0]
     stdev = statistics.stdev(scores) if trial_count > 1 else 0
     print(
-        f"{strategy.info} "
+        f"{strategy_info} "
         f"({trial_count} trials, "
         f"{elapsed} sec total, {elapsed_per_trial} sec per trial):\n"
         f"\n\tMean steps per game: {mean_steps}\n"

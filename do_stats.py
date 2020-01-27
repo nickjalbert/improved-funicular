@@ -13,6 +13,7 @@ from strategies.lookahead import try_lookahead
 from strategies.mcts import try_mcts
 from strategies.mcts_dynamic import try_mcts_dynamic
 from strategies.lookahead_with_rollout import try_lookahead_with_rollout
+from strategies.limited_tree_search import try_limited_tree_search
 
 from envs.nick_2048 import Nick2048
 from envs.nick_gym_adapter import Nick2048Gym
@@ -79,6 +80,7 @@ STRATEGIES = {
     "mcts": try_mcts,
     "mcts_dynamic": try_mcts_dynamic,
     "lookahead_with_rollout": try_lookahead_with_rollout,
+    "limited_tree_search": try_limited_tree_search,
     "nick_td": None,  # only import if used for perf
 }
 
