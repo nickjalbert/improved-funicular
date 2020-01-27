@@ -1,3 +1,20 @@
+
+60 random rollouts per move with a depth limit of 3 per rollout. (24 trials, 1592.37 sec total, 66.34892 sec per trial):
+
+	Mean steps per game: 1422.9
+	Mean time per step: 0.04663
+
+	Max Tiles:
+		4096: 1 (4.17%)
+		2048: 15 (62.5%)
+		1024: 8 (33.33%)
+
+	Max Score: 60184
+	Mean Score: 27092.333333333332
+	Median Score: 26998.0
+	Standard Dev: 11107.449966289436
+	Min Score: 12424
+
 20 random rollouts per move with a depth limit of 15 per rollout. (13 trials, 821.41 sec total, 63.1856 sec per trial):
 
 	Mean steps per game: 1169.4
@@ -13,3 +30,42 @@
 	Median Score: 16124
 	Standard Dev: 9675.764828975589
 	Min Score: 7016
+
+
+
+40 random rollouts per move with a depth limit of 5 per rollout. (4 trials, 213.09 sec total, 53.27282 sec per trial):
+
+	Mean steps per game: 1190
+	Mean time per step: 0.04477
+
+	Max Tiles:
+		2048: 1 (25.0%)
+		1024: 3 (75.0%)
+
+	Max Score: 36220
+	Mean Score: 21218
+	Median Score: 16222.0
+	Standard Dev: 10001.33564413607
+	Min Score: 16208
+
+
+
+================
+2 level
+
+
+100 random rollouts per move with a depth limit of 10 per rollout. (18 trials, 4053.21 sec total, 225.17847 sec per trial):
+
+	Mean steps per game: 891.6
+	Mean time per step: 0.25257
+
+	Max Tiles:
+		2048: 3 (16.67%)
+		1024: 12 (66.67%)
+		512: 3 (16.67%)
+
+	Max Score: 27328
+	Mean Score: 15532.666666666666
+	Median Score: 15944.0
+	Standard Dev: 5776.1895438999245
+	Min Score: 6468
