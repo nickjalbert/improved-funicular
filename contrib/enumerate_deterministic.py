@@ -1,3 +1,7 @@
+# This seeds the game so that the randomness is deterministic (i.e. the same
+# set of moves will always end up in the same game state).
+# State space is still intractable.
+
 import time
 from envs.nick_2048 import Nick2048
 

@@ -16,7 +16,9 @@ alpha = 0.1
 epsilon = 0.1
 discount_rate = 0.95
 SEED = 13
-game = Nick2048(random_seed=SEED)
+game = Nick2048()
+# Uncomment below to force deterministic games
+# game = Nick2048(random_seed=SEED)
 
 
 class StateValue:
