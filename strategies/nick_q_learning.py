@@ -29,18 +29,16 @@ class QTable:
         return max(action_values)
 
     def get(self, state, action):
-        canonical_state, reward = self.get_canonical(state, action)
         self.lookups += 1
-        if (canonical_state, action) in self.q_table:
+        if (state, action) in self.q_table:
             self.hits += 1
-        val = self.q_table[(canonical_state, action)]
+        val = self.q_table[(state, action)]
         if val != 0:
             self.nonzero_hits += 1
         return val + reward
 
     def set(self, state, action, val):
-        canonical_state, reward = self.get_canonical(state, action)
-        self.q_table[(canonical_state, action)] = val
+        self.q_table[(state, action)] = val
 
     @classmethod
     def get_canonical(cls, state, action):
