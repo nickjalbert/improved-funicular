@@ -35,7 +35,7 @@ class QTable:
         val = self.q_table[(state, action)]
         if val != 0:
             self.nonzero_hits += 1
-        return val + reward
+        return val
 
     def set(self, state, action, val):
         self.q_table[(state, action)] = val
