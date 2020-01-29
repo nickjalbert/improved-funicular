@@ -41,7 +41,7 @@ class Nick2048(Base2048):
             cls.LEFT: game._do_left,
         }
         do_action[action]()
-        return game.board
+        return game.board, game.score
 
     @classmethod
     def get_canonical_board(cls, board):

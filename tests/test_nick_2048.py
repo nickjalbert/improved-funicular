@@ -268,14 +268,18 @@ def test_get_afterstate():
     # 4 4 0 0
     # 0 0 0 8
     board = (2, 0, 4, 8, 2, 0, 0, 0, 4, 4, 0, 0, 0, 0, 0, 8)
-    after_up = Nick2048.get_afterstate(board, Nick2048.UP)
+    after_up, up_reward = Nick2048.get_afterstate(board, Nick2048.UP)
     assert after_up == (4, 4, 4, 16, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-    after_down = Nick2048.get_afterstate(board, Nick2048.DOWN)
+    assert up_reward == 20
+    after_down, down_reward = Nick2048.get_afterstate(board, Nick2048.DOWN)
     assert after_down == (0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 4, 4, 4, 16)
-    after_left = Nick2048.get_afterstate(board, Nick2048.LEFT)
+    assert down_reward == 20
+    after_left, left_reward = Nick2048.get_afterstate(board, Nick2048.LEFT)
     assert after_left == (2, 4, 8, 0, 2, 0, 0, 0, 8, 0, 0, 0, 8, 0, 0, 0)
-    after_right = Nick2048.get_afterstate(board, Nick2048.RIGHT)
+    assert left_reward == 8
+    after_right, right_reward = Nick2048.get_afterstate(board, Nick2048.RIGHT)
     assert after_right == (0, 2, 4, 8, 0, 0, 0, 2, 0, 0, 0, 8, 0, 0, 0, 8)
+    assert right_reward == 8
 
 
 def _run_game(game):

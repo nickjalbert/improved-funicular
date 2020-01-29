@@ -27,16 +27,23 @@ class QTable:
         return max(action_values)
 
     def get(self, state, action):
+        canonical_state = self.get_canonical(state, action)
         self.lookups += 1
-        if (state, action) in self.q_table:
+        if (canonical_state, action) in self.q_table:
             self.hits += 1
-        val = self.q_table[(state, action)]
+        val = self.q_table[(canonical_state, action)]
         if val != 0:
             self.nonzero_hits += 1
         return val
 
     def set(self, state, action, val):
-        self.q_table[(state, action)] = val
+        canonical_state = self.get_canonical(state, action)
+        self.q_table[(canonical_state, action)] = val
+
+    @classmethod
+    def get_canonical(cls, state, action):
+        afterstate = Nick2048.get_afterstate(state, action)
+        return Nick2048.get_canonical_board(afterstate)
 
     def learn(self, curr_state, action, reward, next_state):
         curr_q = self.get(curr_state, action)
