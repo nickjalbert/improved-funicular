@@ -30,15 +30,15 @@ class QTable:
         self.q_table[(state, action)] = val
 
     def learn(self, curr_state, action, reward, next_state):
-        curr_q_value = self.get(curr_state, action)
+        curr_q = self.get(curr_state, action)
         action_tuples = Nick2048.get_valid_actions_from_board(next_state)
         actions = [a for a, _, _ in action_tuples]
         if not actions:  # game is over
             return
         next_action_values = [(self.get(next_state, a), a) for a in actions]
-        arg_max_reward, arg_max_action = max(next_action_values)
-        update = ALPHA * (reward + DISCOUNT * arg_max_reward - curr_q_value)
-        self.set(curr_state, action, curr_q_value + update)
+        max_next_q, _ = max(next_action_values)
+        q_update = ALPHA * (reward + DISCOUNT * max_next_q - curr_q)
+        self.set(curr_state, action, curr_q + q_update)
 
     def reset_counters(self):
         self.lookups = 0
@@ -86,8 +86,8 @@ def run_episode(game, q_table):
 
 
 def choose_action_epsilon_greedily(game, q_table):
-    actions = [a for a, _, _ in game.get_valid_actions()]
     random.seed(time.time())
+    actions = [a for a, _, _ in game.get_valid_actions()]
     if random.random() < EPSILON:
         return random.choice(actions)
     else:
