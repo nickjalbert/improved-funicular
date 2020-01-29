@@ -4,6 +4,8 @@ import random
 import time
 import sys
 
+import mlflow
+
 from envs.nick_2048 import Nick2048
 from strategies.utility import do_trials
 
@@ -27,14 +29,14 @@ class QTable:
         return max(action_values)
 
     def get(self, state, action):
-        canonical_state = self.get_canonical(state, action)
+        canonical_state, reward = self.get_canonical(state, action)
         self.lookups += 1
         if (canonical_state, action) in self.q_table:
             self.hits += 1
         val = self.q_table[(canonical_state, action)]
         if val != 0:
             self.nonzero_hits += 1
-        return val
+        return val + reward
 
     def set(self, state, action, val):
         canonical_state = self.get_canonical(state, action)
@@ -43,7 +45,7 @@ class QTable:
     @classmethod
     def get_canonical(cls, state, action):
         afterstate, reward = Nick2048.get_afterstate(state, action)
-        return Nick2048.get_canonical_board(afterstate)
+        return Nick2048.get_canonical_board(afterstate), reward
 
     def learn(self, curr_state, action, reward, next_state):
         curr_q = self.get(curr_state, action)
@@ -107,7 +109,7 @@ def choose_action_epsilon_greedily(game, q_table):
         return q_table.get_max_action(game.board)[1]
 
 
-def try_nick_q_learning(cls, trial_count):
+def _try_nick_q_learning(cls, trial_count):
     start = time.time()
     i = 0
     total_score = 0
@@ -135,11 +137,11 @@ def try_nick_q_learning(cls, trial_count):
                 f"\n\tMean game score: {avg_game_score}"
                 f"\n\tSize of state value table: "
                 f"{round(q_table.size_in_mb, 2)}MB"
-                f"\n\tState value hit rate: "
+                f"\n\tQ table hit rate: "
                 f"{round(q_table.hit_rate, 2)}% "
                 f"({q_table.lookup_hits} out of "
                 f"{q_table.lookup_count})"
-                f"\n\tState value non-zero hit rate: "
+                f"\n\tQ table non-zero hit rate: "
                 f"{round(q_table.nonzero_hit_rate, 2)}% "
                 f"({q_table.lookup_nonzero_hits} out of "
                 f"{q_table.lookup_count})\n"
@@ -152,13 +154,23 @@ def try_nick_q_learning(cls, trial_count):
                 return q_table.get_max_action(board)[1]
 
             q_learning_benchmark_fn.info = f"Q-learning iteration {i}"
-            do_trials(cls, trial_count, q_learning_benchmark_fn)
+            results = do_trials(cls, trial_count, q_learning_benchmark_fn)
+            mlflow.log_metric("max tile", results["Max Tile"], step=i)
+            mlflow.log_metric("max score", results["Max Score"], step=i)
+            mlflow.log_metric("mean score", results["Mean Score"], step=i)
+            mlflow.log_metric("median score", results["Median Score"], step=i)
+            mlflow.log_metric("stdev", results["Standard Dev"], step=i)
+            mlflow.log_metric("min score", results["Min Score"], step=i)
+            mlflow.log_metric("q hit rate", q_table.hit_rate, step=i)
+            mlflow.log_metric("q nonzero hit rate", q_table.nonzero_hit_rate, step=i)
+            mlflow.log_metric("q size", q_table.size_in_mb, step=1)
+
             print(
-                f"State value hit rate: "
+                f"Q table hit rate: "
                 f"{round(q_table.hit_rate, 2)}% "
                 f"({q_table.lookup_hits} out of "
                 f"{q_table.lookup_count})\n"
-                f"State value non-zero hit rate: "
+                f"Q table non-zero hit rate: "
                 f"{round(q_table.nonzero_hit_rate, 2)}% "
                 f"({q_table.lookup_nonzero_hits} out of "
                 f"{q_table.lookup_count})\n"
@@ -166,3 +178,16 @@ def try_nick_q_learning(cls, trial_count):
                 f"{round(q_table.size_in_mb, 2)}MB\n\n"
                 f"=================\n\n"
             )
+
+
+def try_nick_q_learning(cls, trial_count):
+    with mlflow.start_run():
+        mlflow.log_params(
+            {
+                "alpha": ALPHA,
+                "epsilon": EPSILON,
+                "discount rate": DISCOUNT,
+                "desc": "q learning w/ canonical afterstates + immed reward",
+            }
+        )
+        return _try_nick_q_learning(cls, trial_count)
