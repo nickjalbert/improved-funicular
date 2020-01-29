@@ -154,6 +154,8 @@ def try_nick_q_learning(cls, trial_count):
                 f"State value non-zero hit rate: "
                 f"{round(q_table.nonzero_hit_rate, 2)}% "
                 f"({q_table.lookup_nonzero_hits} out of "
-                f"{q_table.lookup_count})\n\n"
+                f"{q_table.lookup_count})\n"
+                f"Size of state value table: "
+                f"{round(q_table.size_in_mb, 2)}MB\n\n"
                 f"=================\n\n"
             )
