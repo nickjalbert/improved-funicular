@@ -17,6 +17,15 @@ class QTable:
         self.q_table = defaultdict(int)
         self.reset_counters()
 
+    def get_max_action(self, state):
+        # Returns (max_q_value, max_action) for valid actions in <state>
+        action_tuples = Nick2048.get_valid_actions_from_board(state)
+        actions = [a for a, _, _ in action_tuples]
+        if not actions:
+            return None, None
+        action_values = [(self.get(state, a), a) for a in actions]
+        return max(action_values)
+
     def get(self, state, action):
         self.lookups += 1
         if (state, action) in self.q_table:
@@ -31,12 +40,9 @@ class QTable:
 
     def learn(self, curr_state, action, reward, next_state):
         curr_q = self.get(curr_state, action)
-        action_tuples = Nick2048.get_valid_actions_from_board(next_state)
-        actions = [a for a, _, _ in action_tuples]
-        if not actions:  # game is over
+        max_next_q, _ = self.get_max_action(next_state)
+        if max_next_q is None:  # game is done
             return
-        next_action_values = [(self.get(next_state, a), a) for a in actions]
-        max_next_q, _ = max(next_action_values)
         q_update = ALPHA * (reward + DISCOUNT * max_next_q - curr_q)
         self.set(curr_state, action, curr_q + q_update)
 
@@ -87,14 +93,11 @@ def run_episode(game, q_table):
 
 def choose_action_epsilon_greedily(game, q_table):
     random.seed(time.time())
-    actions = [a for a, _, _ in game.get_valid_actions()]
     if random.random() < EPSILON:
+        actions = [a for a, _, _ in game.get_valid_actions()]
         return random.choice(actions)
     else:
-        action_values = [
-            (q_table.get(game.board, action), action) for action in actions
-        ]
-        return max(action_values)[1]
+        return q_table.get_max_action(game.board)[1]
 
 
 def try_nick_q_learning(cls, trial_count):
@@ -139,10 +142,7 @@ def try_nick_q_learning(cls, trial_count):
             q_table.reset_counters()
 
             def q_learning_benchmark_fn(board):
-                action_tuples = Nick2048.get_valid_actions_from_board(board)
-                actions = [a for a, _, _ in action_tuples]
-                action_values = [(q_table.get(board, a), a) for a in actions]
-                return max(action_values)[1]
+                return q_table.get_max_action(board)[1]
 
             q_learning_benchmark_fn.info = f"Q-learning iteration {i}"
             do_trials(cls, trial_count, q_learning_benchmark_fn)
