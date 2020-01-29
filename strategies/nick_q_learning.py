@@ -42,7 +42,7 @@ class QTable:
 
     @classmethod
     def get_canonical(cls, state, action):
-        afterstate = Nick2048.get_afterstate(state, action)
+        afterstate, reward = Nick2048.get_afterstate(state, action)
         return Nick2048.get_canonical_board(afterstate)
 
     def learn(self, curr_state, action, reward, next_state):
