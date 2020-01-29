@@ -39,7 +39,7 @@ class QTable:
         return val + reward
 
     def set(self, state, action, val):
-        canonical_state = self.get_canonical(state, action)
+        canonical_state, reward = self.get_canonical(state, action)
         self.q_table[(canonical_state, action)] = val
 
     @classmethod
