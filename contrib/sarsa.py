@@ -66,7 +66,7 @@ class Sarsa(Trainable):
                         logging.debug(f"state:\n{np.asarray(state).reshape([4,4])}")
                         candidate_actions = list(range(b.action_space.n))
                         canonical_afterstates = [
-                            b.get_canonical_board(b.get_afterstate(state, a))
+                            b.get_canonical_board(b.get_afterstate(state, a)[0])
                             for a in candidate_actions
                         ]
                         q_vals = [
@@ -114,7 +114,7 @@ class Sarsa(Trainable):
                         # update q_model via TD learning using q(s,a) (which we computed last loop iter) and q(s',a')
                         next_candidate_actions = list(range(b.action_space.n))
                         next_canonical_afterstates = [
-                            b.get_canonical_board(b.get_afterstate(next_state, action))
+                            b.get_canonical_board(b.get_afterstate(next_state, action)[0])
                             for action in next_candidate_actions
                         ]
                         next_q_vals = [

@@ -31,6 +31,11 @@ class Nick2048(Base2048):
         self.reset()
 
     @classmethod
+    def get_canonical_afterstate(cls, board, action):
+        afterstate, reward = cls.get_afterstate(board, action)
+        return cls.get_canonical_board(afterstate)
+
+    @classmethod
     def get_afterstate(cls, board, action):
         game = cls()
         game.set_board(board)
@@ -41,7 +46,7 @@ class Nick2048(Base2048):
             cls.LEFT: game._do_left,
         }
         do_action[action]()
-        return game.board
+        return game.board, game.score
 
     @classmethod
     def get_canonical_board(cls, board):
