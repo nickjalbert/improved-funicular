@@ -39,6 +39,8 @@ class QTable:
         return max(action_values)[1]
 
     def get(self, state, action):
+        assert len(state) == 16
+        assert action in Nick2048.action_space
         self.lookups += 1
         if (state, action) in self.q_table:
             self.hits += 1
@@ -48,14 +50,18 @@ class QTable:
         return val
 
     def set(self, state, action, val):
+        assert len(state) == 16
+        assert action in Nick2048.action_space
         self.q_table[(state, action)] = val
 
     def learn(self, curr_state, action, reward, next_state):
         curr_canonical = get_canonical(curr_state, action)
         curr_q = self.get(curr_canonical, action)
-        max_next_q = self.get_max_action(next_state)
-        if max_next_q is None:  # game is done
+        max_next_action = self.get_max_action(next_state)
+        if max_next_action is None:  # game is done
             return
+        next_canonical = get_canonical(next_state, max_next_action)
+        max_next_q = self.get(next_canonical, max_next_action)
         q_update = ALPHA * (reward + (DISCOUNT * max_next_q) - curr_q)
         self.set(curr_canonical, action, curr_q + q_update)
 
