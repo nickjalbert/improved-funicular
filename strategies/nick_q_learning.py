@@ -14,6 +14,7 @@ ALPHA = 0.1
 EPSILON = 0.1
 DISCOUNT = 0.95
 
+
 def get_canonical(state, action):
     afterstate, reward = Nick2048.get_afterstate(state, action)
     return Nick2048.get_canonical_board(afterstate)
