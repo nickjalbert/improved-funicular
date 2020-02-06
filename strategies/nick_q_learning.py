@@ -1,4 +1,5 @@
 # Q learning as presented on Sutton and Barto p131 (p153 in trimmed pdf)
+# python do_stats.py nick 100 nick_q_learning
 from collections import defaultdict
 import random
 import time
@@ -13,20 +14,28 @@ ALPHA = 0.1
 EPSILON = 0.1
 DISCOUNT = 0.95
 
+def get_canonical(state, action):
+    afterstate, reward = Nick2048.get_afterstate(state, action)
+    return Nick2048.get_canonical_board(afterstate)
+
 
 class QTable:
     def __init__(self):
         self.q_table = defaultdict(int)
         self.reset_counters()
 
-    def get_max_action(self, state):
-        # Returns (max_q_value, max_action) for valid actions in <state>
-        action_tuples = Nick2048.get_valid_actions_from_board(state)
-        actions = [a for a, _, _ in action_tuples]
+    def get_max_action(self, board):
+        test_game = Nick2048()
+        test_game.set_board(board)
+        actions = [a for a, _, _ in test_game.get_valid_actions()]
         if not actions:
-            return None, None
-        action_values = [(self.get(state, a), a) for a in actions]
-        return max(action_values)
+            return None
+        action_values = []
+        for action in actions:
+            canonical = get_canonical(board, action)
+            val = self.get(canonical, action)
+            action_values.append((val, action))
+        return max(action_values)[1]
 
     def get(self, state, action):
         self.lookups += 1
@@ -40,18 +49,14 @@ class QTable:
     def set(self, state, action, val):
         self.q_table[(state, action)] = val
 
-    @classmethod
-    def get_canonical(cls, state, action):
-        afterstate, reward = Nick2048.get_afterstate(state, action)
-        return Nick2048.get_canonical_board(afterstate), reward
-
     def learn(self, curr_state, action, reward, next_state):
-        curr_q = self.get(curr_state, action)
-        max_next_q, _ = self.get_max_action(next_state)
+        curr_canonical = get_canonical(curr_state, action)
+        curr_q = self.get(curr_canonical, action)
+        max_next_q = self.get_max_action(next_state)
         if max_next_q is None:  # game is done
             return
-        q_update = ALPHA * (reward + DISCOUNT * max_next_q - curr_q)
-        self.set(curr_state, action, curr_q + q_update)
+        q_update = ALPHA * (reward + (DISCOUNT * max_next_q) - curr_q)
+        self.set(curr_canonical, action, curr_q + q_update)
 
     def reset_counters(self):
         self.lookups = 0
@@ -104,7 +109,7 @@ def choose_action_epsilon_greedily(game, q_table):
         actions = [a for a, _, _ in game.get_valid_actions()]
         return random.choice(actions)
     else:
-        return q_table.get_max_action(game.board)[1]
+        return q_table.get_max_action(game.board)
 
 
 def _try_nick_q_learning(cls, trial_count):
@@ -149,7 +154,7 @@ def _try_nick_q_learning(cls, trial_count):
             q_table.reset_counters()
 
             def q_learning_benchmark_fn(board):
-                return q_table.get_max_action(board)[1]
+                return q_table.get_max_action(board)
 
             q_learning_benchmark_fn.info = f"Q-learning iteration {i}"
             results = do_trials(cls, trial_count, q_learning_benchmark_fn)
