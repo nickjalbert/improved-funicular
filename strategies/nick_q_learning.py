@@ -10,7 +10,7 @@ import sys
 
 import mlflow
 
-from envs.nick_2048 import Nick2048
+from envs.nick_cartpole_adapter import NickCartpoleAdapter
 from strategies.utility import do_trials
 
 ALPHA = 0.1
@@ -18,15 +18,9 @@ EPSILON = 0.1
 DISCOUNT = 0.95
 
 
-def get_canonical_2048_board(state, action):
-    afterstate, reward = Nick2048.get_afterstate(state, action)
-    return Nick2048.get_canonical_board(afterstate)
-
-
 class QTable:
-    def __init__(self, test_cls, canonicalize_fn):
+    def __init__(self, test_cls):
         self.test_cls = test_cls
-        self.canonicalize_fn = canonicalize_fn
         self.q_table = defaultdict(int)
         self.reset_counters()
 
@@ -38,13 +32,13 @@ class QTable:
             return None
         action_values = []
         for action in actions:
-            canonical = self.canonicalize_fn(board, action)
+            canonical = self.test_cls.get_canonical_afterstate(board, action)
             val = self.get(canonical, action)
             action_values.append((val, action))
         return max(action_values)[1]
 
     def get(self, state, action):
-        assert len(state) == 16
+        assert len(state) == self.test_cls.STATE_LEN
         assert action in self.test_cls.action_space
         self.lookups += 1
         if (state, action) in self.q_table:
@@ -55,17 +49,21 @@ class QTable:
         return val
 
     def set(self, state, action, val):
-        assert len(state) == 16
+        assert len(state) == self.test_cls.STATE_LEN
         assert action in self.test_cls.action_space
         self.q_table[(state, action)] = val
 
     def learn(self, curr_state, action, reward, next_state):
-        curr_canonical = self.canonicalize_fn(curr_state, action)
+        curr_canonical = self.test_cls.get_canonical_afterstate(
+                curr_state, action
+        )
         curr_q = self.get(curr_canonical, action)
         max_next_action = self.get_max_action(next_state)
         if max_next_action is None:  # game is done
             return
-        next_canonical = self.canonicalize_fn(next_state, max_next_action)
+        next_canonical = self.test_cls.get_canonical_afterstate(
+                next_state, max_next_action
+            )
         max_next_q = self.get(next_canonical, max_next_action)
         q_update = ALPHA * (reward + (DISCOUNT * max_next_q) - curr_q)
         self.set(curr_canonical, action, curr_q + q_update)
@@ -130,8 +128,8 @@ def _try_nick_q_learning(cls, trial_count):
     total_score = 0
     last_scores_to_store = 10
     last_x_scores = []
-    game = Nick2048()
-    q_table = QTable(Nick2048, get_canonical_2048_board)
+    game = cls()
+    q_table = QTable(cls)
     while True:
         run_episode(game, q_table)
         total_score += game.score
@@ -202,11 +200,20 @@ def try_nick_q_learning(cls, trial_count):
                 "alpha": ALPHA,
                 "epsilon": EPSILON,
                 "discount rate": DISCOUNT,
-                "desc": "q learning w/ canonical afterstates + immed reward",
+                "desc": "q learning on 2048 w/ canonical afterstates",
             }
         )
         return _try_nick_q_learning(cls, trial_count)
 
 
 def try_nick_q_learning_cartpole(cls, trial_count):
-    pass
+    with mlflow.start_run():
+        mlflow.log_params(
+            {
+                "alpha": ALPHA,
+                "epsilon": EPSILON,
+                "discount rate": DISCOUNT,
+                "desc": "q learning on CARTPOLE w/ canonical afterstates",
+            }
+        )
+        return _try_nick_q_learning(NickCartpoleAdapter, trial_count)

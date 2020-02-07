@@ -3,6 +3,7 @@ import random
 
 
 class Base2048(gym.Env):
+    STATE_LEN = 16
     @classmethod
     def get_valid_actions_from_board(cls, board):
         test_game = cls()
