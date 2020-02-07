@@ -1,5 +1,8 @@
 # Q learning as presented on Sutton and Barto p131 (p153 in trimmed pdf)
-# python do_stats.py nick 100 nick_q_learning
+# Run on 2048:
+#   python do_stats.py nick 100 nick_q_learning
+# Run on cartpole:
+#   python do_stats.py nick 100 nick_q_learning_cartpole
 from collections import defaultdict
 import random
 import time
@@ -15,32 +18,34 @@ EPSILON = 0.1
 DISCOUNT = 0.95
 
 
-def get_canonical(state, action):
+def get_canonical_2048_board(state, action):
     afterstate, reward = Nick2048.get_afterstate(state, action)
     return Nick2048.get_canonical_board(afterstate)
 
 
 class QTable:
-    def __init__(self):
+    def __init__(self, test_cls, canonicalize_fn):
+        self.test_cls = test_cls
+        self.canonicalize_fn = canonicalize_fn
         self.q_table = defaultdict(int)
         self.reset_counters()
 
     def get_max_action(self, board):
-        test_game = Nick2048()
+        test_game = self.test_cls()
         test_game.set_board(board)
         actions = [a for a, _, _ in test_game.get_valid_actions()]
         if not actions:
             return None
         action_values = []
         for action in actions:
-            canonical = get_canonical(board, action)
+            canonical = self.canonicalize_fn(board, action)
             val = self.get(canonical, action)
             action_values.append((val, action))
         return max(action_values)[1]
 
     def get(self, state, action):
         assert len(state) == 16
-        assert action in Nick2048.action_space
+        assert action in self.test_cls.action_space
         self.lookups += 1
         if (state, action) in self.q_table:
             self.hits += 1
@@ -51,16 +56,16 @@ class QTable:
 
     def set(self, state, action, val):
         assert len(state) == 16
-        assert action in Nick2048.action_space
+        assert action in self.test_cls.action_space
         self.q_table[(state, action)] = val
 
     def learn(self, curr_state, action, reward, next_state):
-        curr_canonical = get_canonical(curr_state, action)
+        curr_canonical = self.canonicalize_fn(curr_state, action)
         curr_q = self.get(curr_canonical, action)
         max_next_action = self.get_max_action(next_state)
         if max_next_action is None:  # game is done
             return
-        next_canonical = get_canonical(next_state, max_next_action)
+        next_canonical = self.canonicalize_fn(next_state, max_next_action)
         max_next_q = self.get(next_canonical, max_next_action)
         q_update = ALPHA * (reward + (DISCOUNT * max_next_q) - curr_q)
         self.set(curr_canonical, action, curr_q + q_update)
@@ -126,7 +131,7 @@ def _try_nick_q_learning(cls, trial_count):
     last_scores_to_store = 10
     last_x_scores = []
     game = Nick2048()
-    q_table = QTable()
+    q_table = QTable(Nick2048, get_canonical_2048_board)
     while True:
         run_episode(game, q_table)
         total_score += game.score
@@ -201,3 +206,7 @@ def try_nick_q_learning(cls, trial_count):
             }
         )
         return _try_nick_q_learning(cls, trial_count)
+
+
+def try_nick_q_learning_cartpole(cls, trial_count):
+    pass
