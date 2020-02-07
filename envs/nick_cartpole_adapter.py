@@ -37,7 +37,7 @@ class NickCartpoleAdapter:
 
     @classmethod
     def get_canonical_afterstate(cls, state, action):
-        return tuple([round(Decimal(el), 2) for el in state])
+        return tuple([round(Decimal(el), 1) for el in state])
 
     @property
     def score(self):
