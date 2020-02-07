@@ -54,16 +54,14 @@ class QTable:
         self.q_table[(state, action)] = val
 
     def learn(self, curr_state, action, reward, next_state):
-        curr_canonical = self.test_cls.get_canonical_afterstate(
-                curr_state, action
-        )
+        curr_canonical = self.test_cls.get_canonical_afterstate(curr_state, action)
         curr_q = self.get(curr_canonical, action)
         max_next_action = self.get_max_action(next_state)
         if max_next_action is None:  # game is done
             return
         next_canonical = self.test_cls.get_canonical_afterstate(
-                next_state, max_next_action
-            )
+            next_state, max_next_action
+        )
         max_next_q = self.get(next_canonical, max_next_action)
         q_update = ALPHA * (reward + (DISCOUNT * max_next_q) - curr_q)
         self.set(curr_canonical, action, curr_q + q_update)
@@ -125,29 +123,29 @@ def choose_action_epsilon_greedily(game, q_table):
 def _try_nick_q_learning(cls, trial_count):
     start = time.time()
     i = 0
-    total_score = 0
     last_scores_to_store = 10
-    last_x_scores = []
+    all_scores = []
     game = cls()
     q_table = QTable(cls)
     while True:
         run_episode(game, q_table)
-        total_score += game.score
-        last_x_scores.append(game.score)
-        while len(last_x_scores) > last_scores_to_store:
-            last_x_scores.pop(0)
+        all_scores.append(game.score)
         i += 1
         if i % 100 == 0:
             total_sec = round(time.time() - start, 2)
             sec_per_iter = round(total_sec / i, 2)
-            avg_game_score = round(total_score / i, 0)
+            max_game_score = round(max(all_scores), 0)
+            mean_game_score = round(sum(all_scores) / len(all_scores), 0)
+            last_score_idx = -1 * last_scores_to_store
+            last_x_scores = all_scores[last_score_idx:]
             avg_last_x = round(sum(last_x_scores) / len(last_x_scores), 2)
             print(
                 f"Training iteration {i} "
                 f"({total_sec} sec total, {sec_per_iter} sec per iter)"
                 f"\n\tLast {last_scores_to_store}: {last_x_scores} "
                 f"(avg: {avg_last_x})"
-                f"\n\tMean game score: {avg_game_score}"
+                f"\n\tMax game score: {max_game_score}"
+                f"\n\tMean game score: {mean_game_score}"
                 f"\n\tSize of state value table: "
                 f"{round(q_table.size_in_mb, 2)}MB"
                 f"\n\tQ table hit rate: "
@@ -159,6 +157,7 @@ def _try_nick_q_learning(cls, trial_count):
                 f"({q_table.lookup_nonzero_hits} out of "
                 f"{q_table.lookup_count})\n"
             )
+            all_scores = []
             q_table.reset_counters()
         if i % 1000 == 0:
             q_table.reset_counters()

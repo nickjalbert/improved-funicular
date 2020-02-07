@@ -141,7 +141,6 @@ if __name__ == "__main__":
 
         STRATEGIES["nick_q_learning_cartpole"] = try_nick_q_learning_cartpole
 
-
     implementation = IMPLEMENTATIONS[impl_name]
     strategy = STRATEGIES[strat_name]
     strategy(implementation, trial_count)

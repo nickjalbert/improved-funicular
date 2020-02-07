@@ -1,9 +1,11 @@
 from decimal import Decimal
 import gym
 
+
 class NickCartpoleAdapter:
     STATE_LEN = 4
-    action_space = (0,1)
+    action_space = (0, 1)
+
     def __init__(self):
         self.env = gym.make("CartPole-v0")
         self.max_steps = 200
@@ -33,9 +35,9 @@ class NickCartpoleAdapter:
     def get_state(self):
         return self.state, self.score, self.done
 
-    @classmethod 
+    @classmethod
     def get_canonical_afterstate(cls, state, action):
-        return tuple([round(Decimal(el),2) for el in state])
+        return tuple([round(Decimal(el), 2) for el in state])
 
     @property
     def score(self):
