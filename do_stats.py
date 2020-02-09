@@ -80,6 +80,7 @@ STRATEGIES = {
     "mcts_dynamic": try_mcts_dynamic,
     "lookahead_with_rollout": try_lookahead_with_rollout,
     "nick_q_learning": None,  # only import if used for perf
+    "nick_q_learning_cartpole": None,  # only import if used for perf
 }
 
 
@@ -134,6 +135,11 @@ if __name__ == "__main__":
         from strategies.nick_q_learning import try_nick_q_learning
 
         STRATEGIES["nick_q_learning"] = try_nick_q_learning
+
+    if strat_name == "nick_q_learning_cartpole":
+        from strategies.nick_q_learning import try_nick_q_learning_cartpole
+
+        STRATEGIES["nick_q_learning_cartpole"] = try_nick_q_learning_cartpole
 
     implementation = IMPLEMENTATIONS[impl_name]
     strategy = STRATEGIES[strat_name]

@@ -1,10 +1,17 @@
-# Q learning as presented on Sutton and Barto p131 (p153 in trimmed pdf)
+# Q-learning (off-policy TD control) as presented in
+# Sutton and Barto p131 (p153 in trimmed pdf)
+# Run on 2048:
+#   python do_stats.py nick 100 nick_q_learning
+# Run on cartpole:
+#   python do_stats.py nick 100 nick_q_learning_cartpole
 from collections import defaultdict
 import random
 import time
 import sys
 
-from envs.nick_2048 import Nick2048
+import mlflow
+
+from envs.nick_cartpole_adapter import NickCartpoleAdapter
 from strategies.utility import do_trials
 
 ALPHA = 0.1
@@ -13,11 +20,27 @@ DISCOUNT = 0.95
 
 
 class QTable:
-    def __init__(self):
+    def __init__(self, test_cls):
+        self.test_cls = test_cls
         self.q_table = defaultdict(int)
         self.reset_counters()
 
+    def get_max_action(self, board):
+        test_game = self.test_cls()
+        test_game.set_board(board)
+        actions = [a for a, _, _ in test_game.get_valid_actions()]
+        if not actions:
+            return None
+        action_values = []
+        for action in actions:
+            canonical = self.test_cls.get_canonical_afterstate(board, action)
+            val = self.get(canonical, action)
+            action_values.append((val, action))
+        return max(action_values)[1]
+
     def get(self, state, action):
+        assert len(state) == self.test_cls.STATE_LEN
+        assert action in self.test_cls.action_space
         self.lookups += 1
         if (state, action) in self.q_table:
             self.hits += 1
@@ -27,18 +50,22 @@ class QTable:
         return val
 
     def set(self, state, action, val):
+        assert len(state) == self.test_cls.STATE_LEN
+        assert action in self.test_cls.action_space
         self.q_table[(state, action)] = val
 
     def learn(self, curr_state, action, reward, next_state):
-        curr_q = self.get(curr_state, action)
-        action_tuples = Nick2048.get_valid_actions_from_board(next_state)
-        actions = [a for a, _, _ in action_tuples]
-        if not actions:  # game is over
+        curr_canonical = self.test_cls.get_canonical_afterstate(curr_state, action)
+        curr_q = self.get(curr_canonical, action)
+        max_next_action = self.get_max_action(next_state)
+        if max_next_action is None:  # game is done
             return
-        next_action_values = [(self.get(next_state, a), a) for a in actions]
-        max_next_q, _ = max(next_action_values)
-        q_update = ALPHA * (reward + DISCOUNT * max_next_q - curr_q)
-        self.set(curr_state, action, curr_q + q_update)
+        next_canonical = self.test_cls.get_canonical_afterstate(
+            next_state, max_next_action
+        )
+        max_next_q = self.get(next_canonical, max_next_action)
+        q_update = ALPHA * (reward + (DISCOUNT * max_next_q) - curr_q)
+        self.set(curr_canonical, action, curr_q + q_update)
 
     def reset_counters(self):
         self.lookups = 0
@@ -87,73 +114,106 @@ def run_episode(game, q_table):
 
 def choose_action_epsilon_greedily(game, q_table):
     random.seed(time.time())
-    actions = [a for a, _, _ in game.get_valid_actions()]
     if random.random() < EPSILON:
+        actions = [a for a, _, _ in game.get_valid_actions()]
         return random.choice(actions)
     else:
-        action_values = [
-            (q_table.get(game.board, action), action) for action in actions
-        ]
-        return max(action_values)[1]
+        return q_table.get_max_action(game.board)
 
 
-def try_nick_q_learning(cls, trial_count):
+def _try_nick_q_learning(cls, trial_count):
     start = time.time()
     i = 0
-    total_score = 0
     last_scores_to_store = 10
-    last_x_scores = []
-    game = Nick2048()
-    q_table = QTable()
+    all_scores = []
+    game = cls()
+    q_table = QTable(cls)
     while True:
         run_episode(game, q_table)
-        total_score += game.score
-        last_x_scores.append(game.score)
-        while len(last_x_scores) > last_scores_to_store:
-            last_x_scores.pop(0)
+        all_scores.append(game.score)
         i += 1
         if i % 100 == 0:
             total_sec = round(time.time() - start, 2)
             sec_per_iter = round(total_sec / i, 2)
-            avg_game_score = round(total_score / i, 0)
+            max_game_score = round(max(all_scores), 0)
+            mean_game_score = round(sum(all_scores) / len(all_scores), 0)
+            last_score_idx = -1 * last_scores_to_store
+            last_x_scores = all_scores[last_score_idx:]
             avg_last_x = round(sum(last_x_scores) / len(last_x_scores), 2)
             print(
                 f"Training iteration {i} "
                 f"({total_sec} sec total, {sec_per_iter} sec per iter)"
                 f"\n\tLast {last_scores_to_store}: {last_x_scores} "
                 f"(avg: {avg_last_x})"
-                f"\n\tMean game score: {avg_game_score}"
+                f"\n\tMax game score: {max_game_score}"
+                f"\n\tMean game score: {mean_game_score}"
                 f"\n\tSize of state value table: "
                 f"{round(q_table.size_in_mb, 2)}MB"
-                f"\n\tState value hit rate: "
+                f"\n\tQ table hit rate: "
                 f"{round(q_table.hit_rate, 2)}% "
                 f"({q_table.lookup_hits} out of "
                 f"{q_table.lookup_count})"
-                f"\n\tState value non-zero hit rate: "
+                f"\n\tQ table non-zero hit rate: "
                 f"{round(q_table.nonzero_hit_rate, 2)}% "
                 f"({q_table.lookup_nonzero_hits} out of "
                 f"{q_table.lookup_count})\n"
             )
+            all_scores = []
             q_table.reset_counters()
         if i % 1000 == 0:
             q_table.reset_counters()
 
             def q_learning_benchmark_fn(board):
-                action_tuples = Nick2048.get_valid_actions_from_board(board)
-                actions = [a for a, _, _ in action_tuples]
-                action_values = [(q_table.get(board, a), a) for a in actions]
-                return max(action_values)[1]
+                return q_table.get_max_action(board)
 
             q_learning_benchmark_fn.info = f"Q-learning iteration {i}"
-            do_trials(cls, trial_count, q_learning_benchmark_fn)
+            results = do_trials(cls, trial_count, q_learning_benchmark_fn)
+            mlflow.log_metric("max tile", results["Max Tile"], step=i)
+            mlflow.log_metric("max score", results["Max Score"], step=i)
+            mlflow.log_metric("mean score", results["Mean Score"], step=i)
+            mlflow.log_metric("median score", results["Median Score"], step=i)
+            mlflow.log_metric("stdev", results["Standard Dev"], step=i)
+            mlflow.log_metric("min score", results["Min Score"], step=i)
+            mlflow.log_metric("q hit rate", q_table.hit_rate, step=i)
+            mlflow.log_metric("q nonzero hit rate", q_table.nonzero_hit_rate, step=i)
+            mlflow.log_metric("q size", q_table.size_in_mb, step=1)
+
             print(
-                f"State value hit rate: "
+                f"Q table hit rate: "
                 f"{round(q_table.hit_rate, 2)}% "
                 f"({q_table.lookup_hits} out of "
                 f"{q_table.lookup_count})\n"
-                f"State value non-zero hit rate: "
+                f"Q table non-zero hit rate: "
                 f"{round(q_table.nonzero_hit_rate, 2)}% "
                 f"({q_table.lookup_nonzero_hits} out of "
-                f"{q_table.lookup_count})\n\n"
+                f"{q_table.lookup_count})\n"
+                f"Size of state value table: "
+                f"{round(q_table.size_in_mb, 2)}MB\n\n"
                 f"=================\n\n"
             )
+
+
+def try_nick_q_learning(cls, trial_count):
+    with mlflow.start_run():
+        mlflow.log_params(
+            {
+                "alpha": ALPHA,
+                "epsilon": EPSILON,
+                "discount rate": DISCOUNT,
+                "desc": "q learning on 2048 w/ canonical afterstates",
+            }
+        )
+        return _try_nick_q_learning(cls, trial_count)
+
+
+def try_nick_q_learning_cartpole(cls, trial_count):
+    with mlflow.start_run():
+        mlflow.log_params(
+            {
+                "alpha": ALPHA,
+                "epsilon": EPSILON,
+                "discount rate": DISCOUNT,
+                "desc": "q learning on CARTPOLE w/ canonical afterstates",
+            }
+        )
+        return _try_nick_q_learning(NickCartpoleAdapter, trial_count)
