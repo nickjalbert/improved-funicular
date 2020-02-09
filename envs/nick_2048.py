@@ -58,13 +58,7 @@ class Nick2048(Base2048):
         xr90 = cls.rotate_board_right(xr0)
         xr180 = cls.rotate_board_right(xr90)
         xr270 = cls.rotate_board_right(xr180)
-        yr0 = cls.reflect_board_across_y(board)
-        yr90 = cls.rotate_board_right(yr0)
-        yr180 = cls.rotate_board_right(yr90)
-        yr270 = cls.rotate_board_right(yr180)
-        rotations_and_reflections = set(
-            [r0, r90, r180, r270, xr0, xr90, xr180, xr270, yr0, yr90, yr180, yr270]
-        )
+        rotations_and_reflections = set([r0, r90, r180, r270, xr0, xr90, xr180, xr270])
         # treat each board as a 16 digit number (where each digit is 0 to 2^17)
         # return the board that corresponds to the largest digit.
         for idx in range(16):
