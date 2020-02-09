@@ -1,4 +1,5 @@
-# Q learning as presented on Sutton and Barto p131 (p153 in trimmed pdf)
+# Q-learning (off-policy TD control) as presented in
+# Sutton and Barto p131 (p153 in trimmed pdf)
 # Run on 2048:
 #   python do_stats.py nick 100 nick_q_learning
 # Run on cartpole:
