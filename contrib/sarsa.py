@@ -1,5 +1,6 @@
-# RL Agent that plays 2048 using Actor-Critic. Coded by Andy 12/18/2019
+# RL Agent that plays 2048 using Sarsa with keras DNN as Value fn. Coded by Andy Jan 2020
 from envs.nick_2048 import Nick2048
+from strategies.utility import softmax
 import logging
 import mlflow
 import numpy as np
@@ -10,7 +11,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ray.tune import Trainable
 
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Sarsa(Trainable):
@@ -27,9 +28,6 @@ class Sarsa(Trainable):
             )
         ] * Nick2048.action_space.n
         [m.build(input_shape=(1, 16)) for m in self.q_models]
-        self.seen_states = (
-            set()
-        )  # track which states we've seen, used for rotation invariance
 
     def _save(self, tmp_checkpoint_dir):
         [
@@ -47,6 +45,7 @@ class Sarsa(Trainable):
         with mlflow.start_run():
             mlflow.log_params(self.params)
             optimizer = keras.optimizers.Adam(lr=self.params["learning_rate"])
+            train_acc_metric = keras.metrics.SparseCategoricalAccuracy()
             game_scores = []
             game_num_steps = []
             b = Nick2048()
@@ -81,7 +80,7 @@ class Sarsa(Trainable):
                         # pick action by rolling dice according to relative values of canonical_afterstates
                         while True:
                             dice_roll = tfp.distributions.Multinomial(
-                                total_count=5, logits=q_vals
+                                total_count=5, probs=softmax(q_vals)
                             ).sample(1)
                             action_index = np.argmax(dice_roll)
                             action = candidate_actions[action_index]
@@ -134,13 +133,19 @@ class Sarsa(Trainable):
                         )
                         logging.debug(f"next_q_val: {next_q_val}")
                         logging.debug(f"target_q_val: {target_q_val}")
-                        val_loss_fn = tf.math.square(q_val - target_q_val)
+                        val_loss = tf.math.square(q_val - target_q_val)
+                        print(f"loss: {val_loss}")
                     val_grads = q_tape.gradient(
-                        val_loss_fn, self.q_models[action].trainable_variables
+                        val_loss, self.q_models[action].trainable_variables
                     )
                     optimizer.apply_gradients(
                         zip(val_grads, self.q_models[action].trainable_variables)
                     )
+                    train_acc_metric.update_state(action, q_vals)
+                    print(f"q_val before gradient step: {q_val}")
+                    print(f"target_q_val: {target_q_val}")
+                    print(f"q_val after gradient step: {np.squeeze(self.q_models[action](np.array(canonical_afterstates[action])[np.newaxis]))}")
+                    print()
                     logging.debug("\n")
 
                     # get ready to loop
@@ -148,15 +153,19 @@ class Sarsa(Trainable):
                     game_score += reward
                     if done:
                         break
+                print(f"accuracy in episode {episode_num}: {train_acc_metric.result().numpy()}")
+                train_acc_metric.reset_states()
                 game_scores.append(game_score)
                 game_num_steps.append(step_num + 1)
                 avg_game_score = np.mean(game_scores)
+                avg_last_10 = np.mean(game_scores[-10:])
                 print(
-                    "%s steps in episode %s, score: %s, running_avg_score: %.0f"
-                    % (step_num + 1, episode_num, game_score, avg_game_score)
+                    "%s steps in episode %s, score: %s, running_avg: %.0f, avg_last_10_games: %.0f"
+                    % (step_num + 1, episode_num, game_score, avg_game_score, avg_last_10)
                 )
                 mlflow.log_metric("game scores", game_score, step=episode_num)
                 mlflow.log_metric("avg game score", avg_game_score, step=episode_num)
+                mlflow.log_metric("avg_score_last_10", avg_last_10)
                 mlflow.log_metric("game num steps", step_num + 1, step=episode_num)
                 mlflow.log_metric(
                     "avg num steps", np.mean(game_num_steps), step=episode_num

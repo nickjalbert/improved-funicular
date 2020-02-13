@@ -72,7 +72,7 @@ class DQN(Trainable):
         )
         for _ in range(self.env.action_space.n):
             self.q_models.append(keras.models.clone_model(q_model))
-        [m.build(input_shape=(1, 4)) for m in self.q_models]
+        [m.build(input_shape=[1, self.env.observation_space.shape[0]]) for m in self.q_models]
         self.loss_fn = keras.losses.mean_squared_error
         self.optimizer = keras.optimizers.Adam(lr=self.params["learning_rate"])
         self.memory = Memory(self.params["buffer_size"])
