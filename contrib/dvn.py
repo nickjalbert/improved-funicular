@@ -141,7 +141,7 @@ class DVN(Trainable):
                     val_targets = (1 - alpha) * vals + alpha * td_target
                     loss = self.loss_fn(vals, val_targets)
                     grads = tape.gradient(loss, self.v_model.trainable_variables)
-                    self.optimizer.apply_gradients(zip(grads, self.v_models.trainable_variables))
+                    self.optimizer.apply_gradients(zip(grads, self.v_model.trainable_variables))
                     logging.debug(f"rewards: {rewards}")
                     logging.debug(f"dones: {dones}")
                     logging.debug(f"next_vals_all: {next_vals_all}")
