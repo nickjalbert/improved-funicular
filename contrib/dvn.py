@@ -90,12 +90,12 @@ class DVN(Trainable):
         self.v_model = load_model(os.path.join(tmp_checkpoint_dir, "/model"))
 
     def get_action(self, episode_num, state):
-        prob_random_action = min(1., (self.params["num_init_random_actions"] + self.params["epsilon"]) / (episode_num + 1.))
+        prob_random_action = min(1., (self.params["num_init_random_episodes"] + self.params["epsilon"]) / (episode_num + 1.))
         self.mlflow_log_metric("prob random action", prob_random_action, step=episode_num)
         if random.random() < prob_random_action:
             action = self.env.action_space.sample()
         else:
-            state_vals = tf.concat([self.v_model(np.asarray(self.env.get_afterstate(state, a)[0])[np.newaxis])
+            state_vals = tf.concat([self.v_model(np.asarray(self.env.get_canonical_board(self.env.get_afterstate(state, a)[0]))[np.newaxis])
                                 for a in range(self.env.action_space.n)], 0)
             action = tf.squeeze(tf.argmax(state_vals)).numpy()
         return action
@@ -186,17 +186,17 @@ class DVN(Trainable):
 
 if __name__ == "__main__":
     params = {}
-    params["num_episodes"] = 1000
+    params["num_episodes"] = 1000000
     params["epsilon"] = 0.5
-    params["num_init_random_actions"] = 1 #20
+    params["num_init_random_episodes"] = 50
     params["max_steps_per_episode"] = 500
     params["alpha0_ie_init_step_size"] = 0.95
     params["alpha_decay"] = 0.00005
     params["gamma_ie_discount_rate"] = 0.9
     params["learning_rate"] = 0.01
-    params["learning_starts"] = 2 #30
-    params["batch_size"] = 2 #30
-    params["buffer_size"] = 10000
+    params["learning_starts"] = 50
+    params["batch_size"] = 30
+    params["buffer_size"] = 500000
     # As a heuristic, make sure we have enough data before we start learning
     assert params["learning_starts"] >= params["batch_size"]
     dvn = DVN(params)
