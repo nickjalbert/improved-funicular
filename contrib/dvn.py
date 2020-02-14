@@ -6,7 +6,6 @@ import logging
 import mlflow.tracking
 import numpy as np
 import os
-import pandas as pd
 import random
 import tensorflow.keras as keras
 from tensorflow.keras.models import load_model
@@ -134,7 +133,7 @@ class DVN(Trainable):
                     for n_a in range(self.env.action_space.n):  # n_a is next_action
                         next_as = [self.env.get_afterstate(s, n_a)[0] for s in next_states]
                         next_canonicals = np.asarray([self.env.get_canonical_board(s) for s in next_as]).reshape(next_states.shape)
-                        next_ca.append(self.v_models[n_a](next_canonicals))
+                        next_ca.append(self.v_model(next_canonicals))
                     next_vals_all = tf.concat(next_ca, 1)
                     next_vals = tf.expand_dims(tf.reduce_max(next_vals_all, axis=1), 1)
                     disc_next_v = (1 - dones) * self.params["gamma_ie_discount_rate"] * next_vals
