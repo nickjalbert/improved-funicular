@@ -1,4 +1,4 @@
-# RL Agent that plays 2048 using DQN.
+# RL Agent that plays 2048 using Deep Value Network (DVN) -- a modification of DQN.
 from collections import deque
 from envs.nick_2048 import Nick2048
 import gym
@@ -57,7 +57,7 @@ class Memory:
                 np.asarray(next_states))
 
 
-class DQN(Trainable):
+class DVN(Trainable):
     def _setup(self, config):
         self.params = config
         self.mlflow_client = mlflow.tracking.MlflowClient()
@@ -200,5 +200,5 @@ if __name__ == "__main__":
     params["buffer_size"] = 10000
     # As a heuristic, make sure we have enough data before we start learning
     assert params["learning_starts"] >= params["batch_size"]
-    dqn = DQN(params)
-    dqn.train()
+    dvn = DVN(params)
+    dvn.train()
