@@ -99,7 +99,7 @@ class DQN(Trainable):
         if random.random() < prob_random_action:
             action = self.env.action_space.sample()
         else:
-            q_vals = tf.concat([self.q_models[a](np.asarray(self.env.get_afterstate(state, a))[np.newaxis])
+            q_vals = tf.concat([self.q_models[a](np.asarray(self.env.get_afterstate(state, a)[0])[np.newaxis])
                                 for a in range(self.env.action_space.n)], 0)
             action = tf.squeeze(tf.argmax(q_vals)).numpy()
         return action
@@ -135,7 +135,7 @@ class DQN(Trainable):
                 for a in range(self.env.action_space.n):
                     if any(actions.squeeze() == a):
                         s = states[actions.squeeze() == a]
-                        afterstates = np.asarray([self.env.get_afterstate(st, a) for st in s]).reshape(s.shape)
+                        afterstates = np.asarray([self.env.get_afterstate(st, a)[0] for st in s]).reshape(s.shape)
                         #canonicals = [self.env.get_canonical_board(st) for st in afterstates]
                         r = rewards[actions.squeeze() == a]
                         d = dones[actions.squeeze() == a]
@@ -145,7 +145,7 @@ class DQN(Trainable):
                             next_ca = []
                             # this mess is necessary since we are using afterstates
                             for n_a in range(self.env.action_space.n):
-                                next_as = np.asarray([self.env.get_afterstate(st, n_a) for st in s_p]).reshape(s_p.shape)
+                                next_as = np.asarray([self.env.get_afterstate(st, n_a)[0] for st in s_p]).reshape(s_p.shape)
                                 #next_canonicals = [self.env.get_canonical_board(st) for st in next_as]
                                 next_ca.append(self.q_models[n_a](next_as))
                             next_q_vals_all = tf.concat(next_ca, 1)
@@ -184,6 +184,7 @@ class DQN(Trainable):
                     avg_last_30,
                 )
             )
+            self.mlflow_log_metric("game score", game_score, step=episode_num + step_num)
             self.mlflow_log_metric("avg game score", avg_game_score, step=episode_num + step_num)
             self.mlflow_log_metric("avg_score_last_30", avg_last_30, step=episode_num + step_num)
             self.mlflow_log_metric("game num steps", step_num + 1, step=episode_num + step_num)
@@ -202,14 +203,14 @@ if __name__ == "__main__":
     params = {}
     params["num_episodes"] = 1000
     params["epsilon"] = 0.5
-    params["num_init_random_actions"] = 20
+    params["num_init_random_actions"] = 1 #20
     params["max_steps_per_episode"] = 500
     params["alpha0_ie_init_step_size"] = 0.95
     params["alpha_decay"] = 0.00005
     params["gamma_ie_discount_rate"] = 0.9
     params["learning_rate"] = 0.01
-    params["learning_starts"] = 30
-    params["batch_size"] = 30
+    params["learning_starts"] = 3 #30
+    params["batch_size"] = 3 #30
     params["buffer_size"] = 10000
     # As a heuristic, make sure we have enough data before we start learning
     assert params["learning_starts"] >= params["batch_size"]
