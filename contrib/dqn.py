@@ -203,14 +203,14 @@ if __name__ == "__main__":
     params = {}
     params["num_episodes"] = 1000
     params["epsilon"] = 0.5
-    params["num_init_random_actions"] = 1 #20
+    params["num_init_random_actions"] = 20
     params["max_steps_per_episode"] = 500
     params["alpha0_ie_init_step_size"] = 0.95
     params["alpha_decay"] = 0.00005
     params["gamma_ie_discount_rate"] = 0.9
     params["learning_rate"] = 0.01
-    params["learning_starts"] = 3 #30
-    params["batch_size"] = 3 #30
+    params["learning_starts"] = 30
+    params["batch_size"] = 30
     params["buffer_size"] = 10000
     # As a heuristic, make sure we have enough data before we start learning
     assert params["learning_starts"] >= params["batch_size"]
