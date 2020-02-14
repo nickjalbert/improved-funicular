@@ -50,34 +50,26 @@ class Nick2048(Base2048):
 
     @classmethod
     def get_canonical_board(cls, board):
-        r0 = board, False, 0
-        r90 = cls.rotate_board_right(board[0]), False, 90
-        r180 = cls.rotate_board_right(r90[0]), False, 180
-        r270 = cls.rotate_board_right(r180[0]), False, 270
-        xr0 = cls.reflect_board_across_x(board[0]), True, 0
-        xr90 = cls.rotate_board_right(xr0[0]), True, 90
-        xr180 = cls.rotate_board_right(xr90[0]), True, 180
-        xr270 = cls.rotate_board_right(xr180[0]), True, 270
+        r0 = board
+        r90 = cls.rotate_board_right(board)
+        r180 = cls.rotate_board_right(r90)
+        r270 = cls.rotate_board_right(r180)
+        xr0 = cls.reflect_board_across_x(board)
+        xr90 = cls.rotate_board_right(xr0)
+        xr180 = cls.rotate_board_right(xr90)
+        xr270 = cls.rotate_board_right(xr180)
         rotations_and_reflections = set([r0, r90, r180, r270, xr0, xr90, xr180, xr270])
         # treat each board as a 16 digit number (where each digit is 0 to 2^17)
         # return the board that corresponds to the largest digit.
         for idx in range(16):
-            max_num = max(r[idx][0] for r in rotations_and_reflections)
+            max_num = max(r[idx] for r in rotations_and_reflections)
             rotations_and_reflections = set(
-                [r for r in rotations_and_reflections if r[idx][0] >= max_num]
+                [r for r in rotations_and_reflections if r[idx] >= max_num]
             )
             if len(rotations_and_reflections) == 1:
                 break
         assert len(rotations_and_reflections) == 1
-        r = rotations_and_reflections.pop()
-        def action_corrector(a):
-            if r[1]:
-                a = (a + 2) % 4
-            n = r[2] / 90
-            a = (a + n) % 4
-            return a
-
-        return r[0], action_corrector
+        return rotations_and_reflections.pop()
 
     @classmethod
     def reflect_board_across_x(cls, board):
