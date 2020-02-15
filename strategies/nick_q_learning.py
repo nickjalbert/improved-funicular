@@ -19,6 +19,8 @@ EPSILON = 0.1
 DISCOUNT = 0.95
 DEPTH_LIMIT = 9
 RANDOM_SEED = 42
+TRAINING_PRINT_INTERVAL = 10
+POLICY_TEST_INTERVAL = 10
 
 
 class QTable:
@@ -142,7 +144,7 @@ def _try_nick_q_learning(cls, trial_count):
         run_episode(game, q_table)
         all_scores.append(game.score)
         i += 1
-        if i % 100 == 0:
+        if i % TRAINING_PRINT_INTERVAL == 0:
             total_sec = round(time.time() - start, 2)
             sec_per_iter = round(total_sec / i, 2)
             max_game_score = round(max(all_scores), 0)
@@ -170,7 +172,7 @@ def _try_nick_q_learning(cls, trial_count):
             )
             all_scores = []
             q_table.reset_counters()
-        if i % 100 == 0:
+        if i % POLICY_TEST_INTERVAL == 0:
             q_table.reset_counters()
 
             def q_learning_benchmark_fn(board):
