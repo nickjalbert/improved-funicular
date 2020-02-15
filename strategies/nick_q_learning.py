@@ -136,7 +136,7 @@ def _try_nick_q_learning(cls, trial_count):
     i = 0
     last_scores_to_store = 10
     all_scores = []
-    game = cls(random_seed=RANDOM_SEED)
+    game = cls(random_seed=RANDOM_SEED, depth_limit=DEPTH_LIMIT)
     q_table = QTable(cls)
     while True:
         run_episode(game, q_table)
@@ -170,14 +170,18 @@ def _try_nick_q_learning(cls, trial_count):
             )
             all_scores = []
             q_table.reset_counters()
-        if i % 1000 == 0:
+        if i % 100 == 0:
             q_table.reset_counters()
 
             def q_learning_benchmark_fn(board):
                 return q_table.get_max_action(board)
 
+            def bench_cls():
+                return cls(random_seed=RANDOM_SEED, depth_limit=DEPTH_LIMIT)
+
             q_learning_benchmark_fn.info = f"Q-learning iteration {i}"
-            results = do_trials(cls, trial_count, q_learning_benchmark_fn)
+
+            results = do_trials(bench_cls, trial_count, q_learning_benchmark_fn)
             mlflow.log_metric("max tile", results["Max Tile"], step=i)
             mlflow.log_metric("max score", results["Max Score"], step=i)
             mlflow.log_metric("mean score", results["Mean Score"], step=i)

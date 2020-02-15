@@ -26,12 +26,14 @@ class Nick2048(Base2048):
     action_space = Discrete(4)  # action space is: [R, D, U, L]
     observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
 
-    def __init__(self, config=None, random_seed=None):
+    def __init__(self, config=None, random_seed=None, depth_limit=None):
         self.random_seed = random_seed
+        self.depth_limit = depth_limit
         self.reset()
 
     @classmethod
     def get_canonical_afterstate(cls, board, action):
+        return board
         afterstate, reward = cls.get_afterstate(board, action)
         return cls.get_canonical_board(afterstate)
 
@@ -136,6 +138,8 @@ class Nick2048(Base2048):
 
     @property
     def done(self):
+        if self.depth_limit and self.step_count >= self.depth_limit:
+            return True
         if len(self.empty_indexes) > 0:
             return False
         # board is full, so just check neighbors to see if we can squish
@@ -217,6 +221,8 @@ class Nick2048(Base2048):
     def step(self, action):
         """Returns a 3-tuple of (board, reward for action, boolean is_done)"""
         assert action in self.action_space
+        if self.depth_limit and self.step_count >= self.depth_limit:
+            return (*self.get_state(), {})
         do_action = {
             self.UP: self._do_up,
             self.RIGHT: self._do_right,
@@ -228,6 +234,7 @@ class Nick2048(Base2048):
         do_action[action]()
         if old_board != self.board:
             self.add_new_random_number()
+            self.step_count += 1
         board, new_score, done = self.get_state()
         return board, new_score - old_score, done, {}
 
@@ -236,6 +243,7 @@ class Nick2048(Base2048):
         self.add_new_random_number()
         self.add_new_random_number()
         self.score = 0
+        self.step_count = 0
         return self.board
 
     def reseed(self):
