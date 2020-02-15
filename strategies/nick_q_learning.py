@@ -17,6 +17,8 @@ from strategies.utility import do_trials
 ALPHA = 0.1
 EPSILON = 0.1
 DISCOUNT = 0.95
+DEPTH_LIMIT = 9
+RANDOM_SEED = 42
 
 
 class QTable:
@@ -105,11 +107,15 @@ class QTable:
 def run_episode(game, q_table):
     game.reset()
     curr_state = game.board
+    depth = 0
     while not game.done:
+        if DEPTH_LIMIT and depth > DEPTH_LIMIT:
+            break
         action = choose_action_epsilon_greedily(game, q_table)
         next_state, reward, _, _ = game.step(action)
         q_table.learn(curr_state, action, reward, next_state)
         curr_state = next_state
+        depth += 1
 
 
 def choose_action_epsilon_greedily(game, q_table):
@@ -122,11 +128,15 @@ def choose_action_epsilon_greedily(game, q_table):
 
 
 def _try_nick_q_learning(cls, trial_count):
+    if RANDOM_SEED:
+        print(f"RUNNING WITH RANDOM SEED {RANDOM_SEED}")
+    if DEPTH_LIMIT:
+        print(f"RUNNING WITH DEPTH LIMIT {DEPTH_LIMIT}")
     start = time.time()
     i = 0
     last_scores_to_store = 10
     all_scores = []
-    game = cls()
+    game = cls(random_seed=RANDOM_SEED)
     q_table = QTable(cls)
     while True:
         run_episode(game, q_table)
@@ -200,7 +210,9 @@ def try_nick_q_learning(cls, trial_count):
                 "alpha": ALPHA,
                 "epsilon": EPSILON,
                 "discount rate": DISCOUNT,
-                "desc": "q learning on 2048 w/ canonical afterstates",
+                "depth limit": DEPTH_LIMIT,
+                "random seed": RANDOM_SEED,
+                "desc": "q learning on 2048",
             }
         )
         return _try_nick_q_learning(cls, trial_count)
@@ -213,6 +225,8 @@ def try_nick_q_learning_cartpole(cls, trial_count):
                 "alpha": ALPHA,
                 "epsilon": EPSILON,
                 "discount rate": DISCOUNT,
+                "depth limit": DEPTH_LIMIT,
+                "random seed": RANDOM_SEED,
                 "desc": "q learning on CARTPOLE w/ canonical afterstates",
             }
         )
