@@ -53,8 +53,8 @@ with mlflow.start_run():
 
     for i in range(1, max_depth + 1):
         print(
-            f"\nDepth: {i}\nMax max tile: {max_max_tile[i]}\nMax score: {max_score[i]}\n" +
-            "total_state_action_pairs: {total_state_action_pairs[i]}\n"
+            f"Depth: {i}\nMax max tile: {max_max_tile[i]}\nMax score: {max_score[i]}\n" +
+            f"total_state_action_pairs: {total_state_action_pairs[i]}\n"
         )
         mlflow.log_metrics(
             {
