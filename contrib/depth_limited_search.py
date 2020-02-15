@@ -3,7 +3,7 @@ import mlflow
 from envs.nick_2048 import Nick2048
 
 SEED = 42
-DEPTH_LIMIT = 8
+DEPTH_LIMIT = 10
 
 
 def update_search_queue(search_queue, game, action_history):
@@ -23,7 +23,6 @@ def test_action_history(actions, expected_score=None, expected_tile=None):
 
 
 def bfs_search():
-    start = time.time()
     search_queue = []
     game = Nick2048(random_seed=SEED)
     update_search_queue(search_queue, game, ())
