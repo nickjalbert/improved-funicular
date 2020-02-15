@@ -59,7 +59,10 @@ class DQN(Trainable):
         self.mlflow_client = mlflow.tracking.MlflowClient()
         self.mlflow_run = self.mlflow_client.create_run(experiment_id="0")
         self.mlflow_log_params(config)
-        self.env = Nick2048()
+        if "random_seed" in self.params:
+            self.env = Nick2048(random_seed=self.params["random_seed"])
+        else:
+            self.env = Nick2048()
         self.q_models = []
         q_model = keras.Sequential(
             [
@@ -114,13 +117,15 @@ class DQN(Trainable):
             self.mlflow_log_metric("alpha", alpha)
             state = self.env.reset()
             game_score = 0
+            max_tile = 0
             for step_num in range(self.params["max_steps_per_episode"]):
                 action = self.get_action(episode_num, state)
                 next_state, reward, done, _ = self.env.step(action)
                 next_state = np.asarray(next_state)
                 self.memory.append((state, action, reward, done, next_state))
-                state = next_state
                 game_score += reward
+                max_tile = max(max_tile, max(next_state))
+                state = next_state
                 if done:
                     break
 
@@ -175,16 +180,18 @@ class DQN(Trainable):
             avg_game_score = np.mean(game_scores)
             avg_last_30 = np.mean(game_scores[-30:])
             print(
-                "%s steps in episode %s, score: %s, running_avg: %.0f, avg_last_30_games: %.0f"
+                "%s steps in episode %s, score: %s, max_tile: %s running_avg: %.0f, avg_last_30_games: %.0f"
                 % (
                     step_num + 1,
                     episode_num,
                     game_score,
+                    max_tile,
                     avg_game_score,
                     avg_last_30,
                 )
             )
             self.mlflow_log_metric("game score", game_score, step=episode_num)
+            self.mlflow_log_metric("max tile", max_tile, step=episode_num)
             self.mlflow_log_metric("avg game score", avg_game_score, step=episode_num)
             self.mlflow_log_metric("avg_score_last_30", avg_last_30, step=episode_num)
             self.mlflow_log_metric("game num steps", step_num + 1, step=episode_num)
@@ -201,10 +208,11 @@ class DQN(Trainable):
 
 if __name__ == "__main__":
     params = {}
-    params["num_episodes"] = 1000
-    params["epsilon"] = 0.5
-    params["num_init_random_actions"] = 20
-    params["max_steps_per_episode"] = 500
+    params["random_seed"] = 42
+    params["num_episodes"] = 10000
+    params["epsilon"] = 0.9
+    params["num_init_random_actions"] = 1000
+    params["max_steps_per_episode"] = 4
     params["alpha0_ie_init_step_size"] = 0.95
     params["alpha_decay"] = 0.00005
     params["gamma_ie_discount_rate"] = 0.9
