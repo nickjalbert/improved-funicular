@@ -3,12 +3,27 @@ import mlflow
 from envs.nick_2048 import Nick2048
 
 SEED = 42
-DEPTH_LIMIT = 10
+DEPTH_LIMIT = 20
 
 
 def update_search_queue(search_queue, game, action_history):
     for action, _, _ in game.get_valid_actions():
         search_queue.append((game.board, game.score, action, action_history))
+
+
+def get_move_string(action_history):
+    def stringify(move):
+        if move == Nick2048.UP:
+            return "↑"
+        if move == Nick2048.DOWN:
+            return "↓"
+        if move == Nick2048.LEFT:
+            return "→"
+        if move == Nick2048.RIGHT:
+            return "←"
+
+    moves = [stringify(a) for a in action_history]
+    return " ".join(moves)
 
 
 def test_action_history(actions, expected_score=None, expected_tile=None):
@@ -41,8 +56,10 @@ def bfs_search():
             depth_time = round(time.time() - depth_start_time, 1)
             print(
                 f"Depth: {curr_depth}:"
-                f"\n\tMax Tile: {max_tile}"
-                f"\n\tMax Score: {max_score}"
+                f"\n\tMax Tile: {max_tile} "
+                f"({get_move_string(max_tile_history)})"
+                f"\n\tMax Score: {max_score} "
+                f"({get_move_string(max_score_history)})"
                 f"\n\tTotal State Action Pairs: {len(state_action_pairs)}"
                 f"\n\tDepth Time: {depth_time} sec"
             )

@@ -45,12 +45,17 @@ def run_manual_loop(game, lookahead_fn=None):
             continue
         print(f"Move: {moves_to_str[key_to_moves[move]]}")
         should_print = True
-        _, _, done = game.step(key_to_moves[move])
+        _, _, done, _ = game.step(key_to_moves[move])
         print()
         game.render_board()
         if done:
             print("Game over!")
             break
+
+
+def play_with_seed(seed):
+    game = Nick2048(random_seed=seed)
+    run_manual_loop(game)
 
 
 def play_with_lookahead():
@@ -69,19 +74,27 @@ def play_andy_version():
     run_manual_loop(game)
 
 
+def print_usage():
+    print(f"\nUsage:")
+    print(f"\tpython {sys.argv[0]} {options}")
+    print()
+    print(f"For example:")
+    print(f"\tpython {sys.argv[0]} andy # plays Andy's version")
+    print(f"\tpython {sys.argv[0]} nick # plays Nick's version")
+    print(f"\tpython {sys.argv[0]} seed 42 # plays with random seed 42")
+    print(
+        f"\tpython {sys.argv[0]} lookahead " f"# Plays with lookahead to suggest moves"
+    )
+    print()
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in ["andy", "nick", "lookahead"]:
-        print(f"\nUsage:")
-        print(f"\tpython {sys.argv[0]} [andy | nick | lookahead]")
-        print()
-        print(f"For example:")
-        print(f"\tpython {sys.argv[0]} andy # plays Andy's version")
-        print(f"\tpython {sys.argv[0]} nick # plays Nick's version")
-        print(
-            f"\tpython {sys.argv[0]} lookahead "
-            f"# Plays with lookahead to suggest moves"
-        )
-        print()
+    options = ["andy", "nick", "lookahead", "seed"]
+    if len(sys.argv) < 2 or sys.argv[1] not in options:
+        print_usage()
+        sys.exit(0)
+    if sys.argv[1] == "seed" and len(sys.argv) != 3:
+        print_usage()
         sys.exit(0)
     if sys.argv[1] == "nick":
         play_nick_version()
@@ -89,5 +102,9 @@ if __name__ == "__main__":
         play_andy_version()
     elif sys.argv[1] == "lookahead":
         play_with_lookahead()
+    elif sys.argv[1] == "seed":
+        seed = int(sys.argv[2])
+        play_with_seed(seed)
     else:
+        print_usage()
         raise Exception(f"Unknown version: {sys.argv[1]}")
