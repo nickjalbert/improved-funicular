@@ -6,15 +6,15 @@ import mlflow
 #logging.basicConfig(level=logging.DEBUG)
 
 with mlflow.start_run():
-    max_steps_range = 10
-    for max_steps in range(max_steps_range):
-        max_steps += 1
+    max_depth_range = 10
+    for max_depth in range(max_depth_range):
+        max_depth += 1
         env = Nick2048(random_seed=42)
         actions = range(env.action_space.n)
         state_actions = deque()  # queue of (num_steps, game_score, max_tile, state, next_action)
         max_max_tile = 0
         max_score = 0
-        total_steps = 0
+        total_state_action_pairs = 0
 
         init_state = env.get_state()[0]
         for a in actions:
@@ -37,8 +37,8 @@ with mlflow.start_run():
             if new_score > max_score:
                 debug_str += f"  new max_score: {new_score}\n"
                 max_score = new_score
-            total_steps += 1
-            if num_steps + 1 < max_steps and not done:
+            total_state_action_pairs += 1
+            if num_steps + 1 < max_depth and not done:
                 for a in actions:
                     if next_state == state and a == next_action:
                         debug_str += f"  not repeating a dud action {a}"
@@ -46,6 +46,6 @@ with mlflow.start_run():
                         state_actions.append((num_steps + 1, new_score, max_tile, next_state, a))
             logging.debug(debug_str)
 
-        logging.critical(f"\nNum steps: {max_steps}\nMax score: {max_score}\nMax max tile: {max_max_tile}\ntotal_steps: {total_steps}\n")
-        mlflow.log_metrics({"Num steps": max_steps, "Max score": max_score, "Max max tile": max_max_tile, "total_steps": total_steps}, step=max_steps)
+        logging.critical(f"\nNum steps: {max_depth}\nMax score: {max_score}\nMax max tile: {max_max_tile}\ntotal_state_action_pairs: {total_state_action_pairs}\n")
+        mlflow.log_metrics({"Num steps": max_depth, "Max score": max_score, "Max max tile": max_max_tile, "total_state_action_pairs": total_state_action_pairs}, step=max_depth)
 
