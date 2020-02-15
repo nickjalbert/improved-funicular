@@ -94,10 +94,10 @@ class Sarsa(Trainable):
                                 assert (
                                     len(candidate_actions) > 1
                                 ), "No actions changed the board but we are not done."
-                            q_vals = q_vals[:action_index] + q_vals[action_index + 1:]
+                            q_vals = q_vals[:action_index] + q_vals[action_index + 1 :]
                             candidate_actions = (
                                 candidate_actions[:action_index]
-                                + candidate_actions[action_index + 1:]
+                                + candidate_actions[action_index + 1 :]
                             )
                         logging.debug(f"action: {action}")
                         logging.debug(
@@ -113,7 +113,9 @@ class Sarsa(Trainable):
                         # update q_model via TD learning using q(s,a) (which we computed last loop iter) and q(s',a')
                         next_candidate_actions = list(range(b.action_space.n))
                         next_canonical_afterstates = [
-                            b.get_canonical_board(b.get_afterstate(next_state, action)[0])
+                            b.get_canonical_board(
+                                b.get_afterstate(next_state, action)[0]
+                            )
                             for action in next_candidate_actions
                         ]
                         next_q_vals = [
@@ -144,7 +146,10 @@ class Sarsa(Trainable):
                     train_acc_metric.update_state(action, q_vals)
                     print(f"q_val before gradient step: {q_val}")
                     print(f"target_q_val: {target_q_val}")
-                    print(f"q_val after gradient step: {np.squeeze(self.q_models[action](np.array(canonical_afterstates[action])[np.newaxis]))}")
+                    q_for_print = np.squeeze(self.q_models[action](np.array(canonical_afterstates[action])[np.newaxis]))
+                    print(
+                        f"q_val after gradient step: {q_for_print}"
+                    )
                     print()
                     logging.debug("\n")
 
@@ -153,7 +158,9 @@ class Sarsa(Trainable):
                     game_score += reward
                     if done:
                         break
-                print(f"accuracy in episode {episode_num}: {train_acc_metric.result().numpy()}")
+                print(
+                    f"accuracy in episode {episode_num}: {train_acc_metric.result().numpy()}"
+                )
                 train_acc_metric.reset_states()
                 game_scores.append(game_score)
                 game_num_steps.append(step_num + 1)
@@ -161,7 +168,13 @@ class Sarsa(Trainable):
                 avg_last_10 = np.mean(game_scores[-10:])
                 print(
                     "%s steps in episode %s, score: %s, running_avg: %.0f, avg_last_10_games: %.0f"
-                    % (step_num + 1, episode_num, game_score, avg_game_score, avg_last_10)
+                    % (
+                        step_num + 1,
+                        episode_num,
+                        game_score,
+                        avg_game_score,
+                        avg_last_10,
+                    )
                 )
                 mlflow.log_metric("game scores", game_score, step=episode_num)
                 mlflow.log_metric("avg game score", avg_game_score, step=episode_num)
