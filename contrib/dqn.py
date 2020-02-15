@@ -1,21 +1,22 @@
-# RL Agent that plays 2048 using Actor-Critic. Coded by Andy 1/25/2020
+# RL Agent that plays 2048 using DQN.
 from collections import deque
+from envs.nick_2048 import Nick2048
 import gym
 import logging
 import mlflow.tracking
 import numpy as np
-# import os
-# import pandas as pd
+import os
+import pandas as pd
 import random
 import tensorflow.keras as keras
-# from tensorflow.keras.models import load_model
+from tensorflow.keras.models import load_model
 import tensorflow as tf
-# import tensorflow_probability as tfp
+import tensorflow_probability as tfp
 from ray.tune import Trainable
 
-# from strategies.utility import softmax
+from strategies.utility import softmax
 
-# logging.basicConfig(level=logging.DEBUG)
+#logging.basicConfig(level=logging.DEBUG)
 
 
 class Memory:
@@ -45,13 +46,11 @@ class Memory:
             rewards.append(self.rewards[candidate_indices[i]])
             dones.append(self.dones[candidate_indices[i]])
             next_states.append(self.next_states[candidate_indices[i]])
-        return (
-            np.asarray(states),
-            np.asarray(actions),
-            np.asarray(rewards).reshape((batchsize, 1)),
-            np.asarray(dones).reshape((batchsize, 1)),
-            np.asarray(next_states),
-        )
+        return (np.asarray(states),
+                np.asarray(actions),
+                np.asarray(rewards).reshape((batchsize, 1)),
+                np.asarray(dones).reshape((batchsize, 1)),
+                np.asarray(next_states))
 
 
 class DQN(Trainable):
@@ -60,7 +59,7 @@ class DQN(Trainable):
         self.mlflow_client = mlflow.tracking.MlflowClient()
         self.mlflow_run = self.mlflow_client.create_run(experiment_id="0")
         self.mlflow_log_params(config)
-        self.env = gym.make("CartPole-v0")
+        self.env = Nick2048()
         self.q_models = []
         q_model = keras.Sequential(
             [
@@ -78,9 +77,7 @@ class DQN(Trainable):
         self.memory = Memory(self.params["buffer_size"])
 
     def mlflow_log_metric(self, key, val, timestamp=None, step=None):
-        self.mlflow_client.log_metric(
-            self.mlflow_run.info.run_id, key, val, timestamp, step
-        )
+        self.mlflow_client.log_metric(self.mlflow_run.info.run_id, key, val, timestamp, step)
 
     def mlflow_log_params(self, params):
         for k, v in params.items():
@@ -88,33 +85,22 @@ class DQN(Trainable):
 
     def _save(self, tmp_checkpoint_dir):
         raise NotImplementedError
-        # TODO port to save all action models
-        # self.q_model.save(os.path.join(tmp_checkpoint_dir, "/model"))
+        #TODO port to save all action models
+        #self.q_model.save(os.path.join(tmp_checkpoint_dir, "/model"))
 
     def _restore(self, tmp_checkpoint_dir):
         raise NotImplementedError
-        # TODO port to restore all action models
-        # load_model(os.path.join(tmp_checkpoint_dir, "/model"))
+        #TODO port to restore all action models
+        #load_model(os.path.join(tmp_checkpoint_dir, "/model"))
 
     def get_action(self, episode_num, state):
-        prob_random_action = min(
-            1.0,
-            (self.params["num_init_random_actions"] + self.params["epsilon"])
-            / (episode_num + 1.0),
-        )
-        self.mlflow_log_metric(
-            "prob random action", prob_random_action, step=episode_num
-        )
+        prob_random_action = min(1., (self.params["num_init_random_actions"] + self.params["epsilon"]) / (episode_num + 1.))
+        self.mlflow_log_metric("prob random action", prob_random_action, step=episode_num)
         if random.random() < prob_random_action:
             action = self.env.action_space.sample()
         else:
-            q_vals = tf.concat(
-                [
-                    self.q_models[a](state[np.newaxis])
-                    for a in range(self.env.action_space.n)
-                ],
-                0,
-            )
+            q_vals = tf.concat([self.q_models[a](np.asarray(self.env.get_afterstate(state, a)[0])[np.newaxis])
+                                for a in range(self.env.action_space.n)], 0)
             action = tf.squeeze(tf.argmax(q_vals)).numpy()
         return action
 
@@ -123,9 +109,7 @@ class DQN(Trainable):
         game_scores = []
         game_num_steps = []
         for episode_num in range(self.params["num_episodes"]):
-            alpha = self.params["alpha0_ie_init_step_size"] / (
-                1 + episode_num * self.params["alpha_decay"]
-            )
+            alpha = self.params["alpha0_ie_init_step_size"] / (1 + episode_num * self.params["alpha_decay"])
             logging.debug(f"alpha: {alpha}")
             self.mlflow_log_metric("alpha", alpha)
             state = self.env.reset()
@@ -133,6 +117,7 @@ class DQN(Trainable):
             for step_num in range(self.params["max_steps_per_episode"]):
                 action = self.get_action(episode_num, state)
                 next_state, reward, done, _ = self.env.step(action)
+                next_state = np.asarray(next_state)
                 self.memory.append((state, action, reward, done, next_state))
                 state = next_state
                 game_score += reward
@@ -140,50 +125,38 @@ class DQN(Trainable):
                     break
 
             if episode_num >= self.params["learning_starts"]:
-                (
-                    states,
-                    actions,
-                    rewards,
-                    dones,
-                    next_states,
-                ) = self.memory.get_random_batch(self.params["batch_size"])
-                # batch = get batch of states, actions, rewards, dones, next_states
-                # for a in env.action_space.n:
-                #     b = [t for t in batch if t[1] == a]
-                #     q = q_models[actions](states)
-                #     target_q = (1-alpha) q(s,action) + alpha (r + gamma * argmax_a(q_models[a](s')))
-                #     fit model to minimize loss(y, target_y)
+                states, actions, rewards, dones, next_states = self.memory.get_random_batch(self.params["batch_size"])
+                    # batch = get batch of states, actions, rewards, dones, next_states
+                    # for a in env.action_space.n:
+                    #     b = [t for t in batch if t[1] == a]
+                    #     q = q_models[actions](states)
+                    #     target_q = (1-alpha) q(s,action) + alpha (r + gamma * argmax_a(q_models[a](s')))
+                    #     fit model to minimize loss(y, target_y)
                 for a in range(self.env.action_space.n):
                     if any(actions.squeeze() == a):
                         s = states[actions.squeeze() == a]
+                        afterstates = np.asarray([self.env.get_afterstate(st, a)[0] for st in s]).reshape(s.shape)
+                        #canonicals = [self.env.get_canonical_board(st) for st in afterstates]
                         r = rewards[actions.squeeze() == a]
                         d = dones[actions.squeeze() == a]
                         s_p = next_states[actions.squeeze() == a]
                         with tf.GradientTape() as tape:
-                            q_vals = self.q_models[a](s)
-                            next_q_vals_all = tf.concat(
-                                [
-                                    self.q_models[a](s_p)
-                                    for a in range(self.env.action_space.n)
-                                ],
-                                1,
-                            )
+                            q_vals = self.q_models[a](afterstates)
+                            next_ca = []
+                            # this mess is necessary since we are using afterstates
+                            for n_a in range(self.env.action_space.n):
+                                next_as = np.asarray([self.env.get_afterstate(st, n_a)[0] for st in s_p]).reshape(s_p.shape)
+                                #next_canonicals = [self.env.get_canonical_board(st) for st in next_as]
+                                next_ca.append(self.q_models[n_a](next_as))
+                            next_q_vals_all = tf.concat(next_ca, 1)
                             next_q_vals_simple = tf.reduce_max(next_q_vals_all, axis=1)
                             next_q_vals = tf.expand_dims(next_q_vals_simple, 1)
-                            disc_next_q = (
-                                (1 - d)
-                                * self.params["gamma_ie_discount_rate"]
-                                * next_q_vals
-                            )
+                            disc_next_q = (1 - d) * self.params["gamma_ie_discount_rate"] * next_q_vals
                             td_target = r + disc_next_q
                             q_val_targets = (1 - alpha) * q_vals + alpha * td_target
                             loss = self.loss_fn(q_vals, q_val_targets)
-                            grads = tape.gradient(
-                                loss, self.q_models[a].trainable_variables
-                            )
-                            self.optimizer.apply_gradients(
-                                zip(grads, self.q_models[a].trainable_variables)
-                            )
+                            grads = tape.gradient(loss, self.q_models[a].trainable_variables)
+                            self.optimizer.apply_gradients(zip(grads, self.q_models[a].trainable_variables))
                             logging.debug(f"r: {r}")
                             logging.debug(f"d: {d}")
                             logging.debug(f"next_q_vals_all: {next_q_vals_all}")
@@ -203,17 +176,18 @@ class DQN(Trainable):
             avg_last_30 = np.mean(game_scores[-30:])
             print(
                 "%s steps in episode %s, score: %s, running_avg: %.0f, avg_last_30_games: %.0f"
-                % (step_num + 1, episode_num, game_score, avg_game_score, avg_last_30,)
+                % (
+                    step_num + 1,
+                    episode_num,
+                    game_score,
+                    avg_game_score,
+                    avg_last_30,
+                )
             )
-            self.mlflow_log_metric(
-                "avg game score", avg_game_score, step=episode_num + step_num
-            )
-            self.mlflow_log_metric(
-                "avg_score_last_30", avg_last_30, step=episode_num + step_num
-            )
-            self.mlflow_log_metric(
-                "game num steps", step_num + 1, step=episode_num + step_num
-            )
+            self.mlflow_log_metric("game score", game_score, step=episode_num)
+            self.mlflow_log_metric("avg game score", avg_game_score, step=episode_num)
+            self.mlflow_log_metric("avg_score_last_30", avg_last_30, step=episode_num)
+            self.mlflow_log_metric("game num steps", step_num + 1, step=episode_num)
             self.mlflow_log_metric(
                 "avg num steps", np.mean(game_num_steps), step=episode_num
             )
@@ -235,7 +209,7 @@ if __name__ == "__main__":
     params["alpha_decay"] = 0.00005
     params["gamma_ie_discount_rate"] = 0.9
     params["learning_rate"] = 0.01
-    params["learning_starts"] = 50
+    params["learning_starts"] = 30
     params["batch_size"] = 30
     params["buffer_size"] = 10000
     # As a heuristic, make sure we have enough data before we start learning
