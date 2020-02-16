@@ -6,7 +6,7 @@ import mlflow
 # logging.basicConfig(level=logging.DEBUG)
 
 with mlflow.start_run():
-    max_depth = 10
+    max_depth = 18
     assert max_depth > 0
     env = Nick2048(random_seed=42)
     actions = range(env.action_space.n)
@@ -16,6 +16,7 @@ with mlflow.start_run():
     max_max_tile = [0] * (max_depth + 1)
     max_score = [0] * (max_depth + 1)
     total_state_action_pairs = [0] * (max_depth + 1)
+    state_action_scores = {}
 
     init_state = env.get_state()[0]
     for a in actions:
@@ -28,6 +29,10 @@ with mlflow.start_run():
         t = state_actions.popleft()
         debug_str += f"handling {t}\n"
         depth, game_score, max_tile, state, next_action = t
+        if (state, next_action) in state_action_scores:
+            if game_score <= state_action_scores[(state, next_action)]:
+                continue
+        state_action_scores[(state, next_action)] = game_score
         env.set_board(state)
         env.score = game_score
         next_state, reward, done, _ = env.step(next_action)
@@ -35,11 +40,11 @@ with mlflow.start_run():
         new_max = max(next_state)
         if new_max > max(max_max_tile):
             debug_str += f"  new max_tile: {new_max}\n"
-        max_max_tile[depth] = new_max
+        max_max_tile[depth] = max(max(max_max_tile), new_max)
         new_score = game_score + reward
         if new_score > max(max_score):
             debug_str += f"  new max_score: {new_score}\n"
-        max_score[depth] = new_score
+        max_score[depth] = max(max(max_score), new_score)
         total_state_action_pairs[depth] += 1
         if depth < max_depth and not done:
             for a in actions:
@@ -53,8 +58,8 @@ with mlflow.start_run():
 
     for i in range(1, max_depth + 1):
         print(
-            f"Depth: {i}\nMax max tile: {max_max_tile[i]}\nMax score: {max_score[i]}\n" +
-            f"total_state_action_pairs: {total_state_action_pairs[i]}\n"
+            f"Depth: {i}\nMax max tile: {max_max_tile[i]}\nMax score: {max_score[i]}\n"
+            + f"total_state_action_pairs: {total_state_action_pairs[i]}\n"
         )
         mlflow.log_metrics(
             {
