@@ -11,7 +11,7 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from ray.tune import Trainable
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 
 class Sarsa(Trainable):
@@ -94,10 +94,11 @@ class Sarsa(Trainable):
                                 assert (
                                     len(candidate_actions) > 1
                                 ), "No actions changed the board but we are not done."
-                            q_vals = q_vals[:action_index] + q_vals[action_index + 1 :]
+                            a_idx_pp = action_index + 1
+                            q_vals = q_vals[:action_index] + q_vals[a_idx_pp:]
                             candidate_actions = (
                                 candidate_actions[:action_index]
-                                + candidate_actions[action_index + 1 :]
+                                + candidate_actions[a_idx_pp:]
                             )
                         logging.debug(f"action: {action}")
                         logging.debug(
@@ -146,10 +147,12 @@ class Sarsa(Trainable):
                     train_acc_metric.update_state(action, q_vals)
                     print(f"q_val before gradient step: {q_val}")
                     print(f"target_q_val: {target_q_val}")
-                    q_for_print = np.squeeze(self.q_models[action](np.array(canonical_afterstates[action])[np.newaxis]))
-                    print(
-                        f"q_val after gradient step: {q_for_print}"
+                    q_for_print = np.squeeze(
+                        self.q_models[action](
+                            np.array(canonical_afterstates[action])[np.newaxis]
+                        )
                     )
+                    print(f"q_val after gradient step: {q_for_print}")
                     print()
                     logging.debug("\n")
 
@@ -176,13 +179,13 @@ class Sarsa(Trainable):
                         avg_last_10,
                     )
                 )
-                mlflow.log_metric("game scores", game_score, step=episode_num)
-                mlflow.log_metric("avg game score", avg_game_score, step=episode_num)
-                mlflow.log_metric("avg_score_last_10", avg_last_10)
-                mlflow.log_metric("game num steps", step_num + 1, step=episode_num)
-                mlflow.log_metric(
-                    "avg num steps", np.mean(game_num_steps), step=episode_num
-                )
+                # mlflow.log_metric("game scores", game_score, step=episode_num)
+                # mlflow.log_metric("avg game score", avg_game_score, step=episode_num)
+                # mlflow.log_metric("avg_score_last_10", avg_last_10)
+                # mlflow.log_metric("game num steps", step_num + 1, step=episode_num)
+                # mlflow.log_metric(
+                #     "avg num steps", np.mean(game_num_steps), step=episode_num
+                # )
             return {
                 "avg_game_score": avg_game_score,
                 "avg_num_steps": np.mean(game_num_steps),
@@ -193,8 +196,8 @@ class Sarsa(Trainable):
 
 if __name__ == "__main__":
     params = {}
-    params["num_episodes"] = 100000000
-    params["max_steps_per_episode"] = 500
+    params["num_episodes"] = 1000
+    params["max_steps_per_episode"] = 4
     params["alpha"] = 0.95
     params["learning_rate"] = 0.001
     sarsa = Sarsa(params)
