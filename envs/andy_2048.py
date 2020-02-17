@@ -13,8 +13,10 @@ class BoardEnv:
     action_space = Discrete(4)  # action space is: [R, D, U, L]
     observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
 
-    def __init__(self, width=4, init_spots_filled=2):
+    def __init__(self, width=4, init_spots_filled=2, random_seed=None):
         assert 0 <= init_spots_filled <= width ** 2
+        if random_seed:
+            random.seed(random_seed)
         self.value = 0
         self.width = width
         self.state = np.array([[0.0] * width] * width)

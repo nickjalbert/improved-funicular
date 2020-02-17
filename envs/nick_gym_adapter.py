@@ -5,6 +5,14 @@ import numpy as np
 
 
 class Nick2048Gym(Nick2048):
+
+    def __init__(self, config=None, random_seed=None):
+        super().__init__(random_seed)
+        if config:
+            if "random_seed" in config:
+                assert random_seed is None
+                self.random_seed = config["random_seed"]
+
     def reset(self):
         new_board = super().reset()
         return np.asarray(new_board)

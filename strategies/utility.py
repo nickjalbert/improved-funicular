@@ -42,18 +42,27 @@ def print_results(strategy, elapsed, step_counts, max_tiles, scores):
     )
 
 
-def do_trials(cls, trial_count, strategy, check_done_fn=None, init_board=None, always_print=False):
+def do_trials(
+    cls,
+    trial_count,
+    strategy,
+    check_done_fn=None,
+    max_steps_per_episode=500,
+    random_seed=None,
+    init_board=None,
+    always_print=False,
+):
     start_time = time.time()
     scores = []
     max_tiles = []
     step_counts = []
     for i in range(trial_count):
-        game = cls()
+        game = cls(random_seed=random_seed)
         if init_board:
             game.set_board(init_board)
         curr_board, score, done = game.get_state()
         steps = 0
-        while not done:
+        while steps < max_steps_per_episode and not done:
             assert np.array_equal(np.asarray(curr_board), np.asarray(game.board))
             move = strategy(curr_board)
             prev_board = game.board
