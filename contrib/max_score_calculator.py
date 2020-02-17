@@ -2,11 +2,12 @@ from collections import deque
 from envs.nick_2048 import Nick2048
 import logging
 import mlflow
+import time
 
 # logging.basicConfig(level=logging.DEBUG)
-
+start_time = time.time()
 with mlflow.start_run():
-    max_depth = 18
+    max_depth = 20
     assert max_depth > 0
     env = Nick2048(random_seed=42)
     actions = range(env.action_space.n)
@@ -55,7 +56,7 @@ with mlflow.start_run():
                         (depth + 1, new_score, max_tile, next_state, a)
                     )
         logging.debug(debug_str)
-
+    runtime = time.time() - start_time
     for i in range(1, max_depth + 1):
         print(
             f"Depth: {i}\nMax max tile: {max_max_tile[i]}\nMax score: {max_score[i]}\n"
@@ -70,3 +71,4 @@ with mlflow.start_run():
             },
             step=max_depth,
         )
+    print("runtime: %.3f seconds" % runtime)
