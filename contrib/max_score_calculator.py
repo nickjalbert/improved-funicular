@@ -8,18 +8,17 @@ import time
 # logging.basicConfig(level=logging.DEBUG)
 start_time = time.time()
 with mlflow.start_run():
-    max_depth = 20
+    max_depth = 15
     assert max_depth > 0
     num_random_seeds = 100
     max_max_tile = []
     max_score = []
     total_state_action_pairs = []
-    state_action_scores = []
     for rand_seed in range(num_random_seeds):
         max_max_tile.append([0] * (max_depth + 1))
         max_score.append([0] * (max_depth + 1))
         total_state_action_pairs.append([0] * (max_depth + 1))
-        state_action_scores.append({})
+        state_action_scores = {}
         env = Nick2048(random_seed=rand_seed)
         actions = range(env.action_space.n)
         state_actions = (
@@ -37,10 +36,10 @@ with mlflow.start_run():
             t = state_actions.popleft()
             debug_str += f"handling {t}\n"
             depth, game_score, max_tile, state, next_action = t
-            if (state, next_action) in state_action_scores[rand_seed]:
-                if game_score <= state_action_scores[rand_seed][(state, next_action)]:
+            if (state, next_action) in state_action_scores:
+                if game_score <= state_action_scores[(state, next_action)]:
                     continue
-            state_action_scores[rand_seed][(state, next_action)] = game_score
+            state_action_scores[(state, next_action)] = game_score
             env.set_board(state)
             env.score = game_score
             next_state, reward, done, _ = env.step(next_action)
@@ -96,3 +95,4 @@ with mlflow.start_run():
         #     step=max_depth,
         # )
     print("runtime: %.3f seconds" % runtime)
+    print("num random seeds: %s" % num_random_seeds)

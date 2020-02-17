@@ -17,11 +17,13 @@ def train_tabular_mcts(
     n,
     sum_ret,
     num_rollouts=100000,
+    max_steps_per_episode=500,
     epsilon=0.9,
     discount_rate=0.95,
     perc_rollouts_full_random=10,
     rollout_start_count=0,
     init_board=None,
+    random_seed=None,
     print_stats=False,
     print_freq=100,
 ):
@@ -36,7 +38,7 @@ def train_tabular_mcts(
                 1, 10 * epsilon / (rollout_num - num_rollouts_full_random + 1)
             )
         # print("prob of rand action: %s" % prob_rand_action)
-        game = cls()
+        game = cls(random_seed=random_seed)
         if init_board:
             game.score = 0
             game.set_board(init_board)
@@ -44,7 +46,7 @@ def train_tabular_mcts(
         states, actions, rewards, is_duplicate = [], [], [], []
         state_action_pairs = set()
         step_num = 0
-        while not done:
+        while step_num <= max_steps_per_episode and not done:
             if random.random() < prob_rand_action:
                 action = game.action_space.sample()
             else:
@@ -119,13 +121,14 @@ def try_mcts(cls, trial_count):
     mcts_policy_fn.info = "MCTS strategy"
     with mlflow.start_run():
         epsilon = 1
-        discount_rate = 0.8
-        init_board = [2, 2] + [0] * 14
-        num_training_iters = 10
+        discount_rate = 0.9
+        num_training_iters = 500
         rollouts_per_training_iter = 1000
+        max_steps_per_episode = 20
+        random_seed = 42
+        perc_rollouts_full_random = 50
         mlflow.log_param("epsilon", epsilon)
         mlflow.log_param("discount_rate", discount_rate)
-        mlflow.log_param("init_board", str(init_board))
         mlflow.log_param("num_training_iter", num_training_iters)
         mlflow.log_param("rollouts_per_training_iter", rollouts_per_training_iter)
         for training_iter in range(num_training_iters):
@@ -135,11 +138,13 @@ def try_mcts(cls, trial_count):
                 mcts_policy_fn,
                 n,
                 sum_ret,
+                num_rollouts=rollouts_per_training_iter,
+                max_steps_per_episode=max_steps_per_episode,
                 epsilon=epsilon,
                 discount_rate=discount_rate,
-                num_rollouts=rollouts_per_training_iter,
+                perc_rollouts_full_random=perc_rollouts_full_random,
                 rollout_start_count=rollouts_per_training_iter * training_iter,
-                init_board=init_board,
+                random_seed=random_seed,
                 print_stats=True,
             )
             print(
@@ -147,7 +152,7 @@ def try_mcts(cls, trial_count):
                 % (trial_count, training_iter)
             )
             trial_result = do_trials(
-                cls, trial_count, mcts_policy_fn, init_board=init_board,
+                cls, trial_count, mcts_policy_fn, random_seed=random_seed, max_steps_per_episode=max_steps_per_episode
             )
             mlflow.log_metrics(trial_result, step=training_iter)
 

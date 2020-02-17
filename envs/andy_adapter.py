@@ -18,8 +18,8 @@ class Andy2048(Base2048):
         andy_wrapper.andy = BoardEnv.from_init_state(init_state)
         return andy_wrapper
 
-    def __init__(self):
-        self.andy = BoardEnv()
+    def __init__(self, random_seed=None):
+        self.andy = BoardEnv(random_seed=random_seed)
 
     @property
     def board(self):

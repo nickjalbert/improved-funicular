@@ -26,12 +26,8 @@ class Nick2048(Base2048):
     action_space = Discrete(4)  # action space is: [R, D, U, L]
     observation_space = Box(low=0, high=2 ** 30, shape=(16,), dtype=np.uint32)
 
-    def __init__(self, config=None, random_seed=None):
+    def __init__(self, random_seed=None):
         self.random_seed = random_seed
-        if config:
-            if "random_seed" in config:
-                assert random_seed is None
-                self.random_seed = config["random_seed"]
         self.reset()
 
     @classmethod
