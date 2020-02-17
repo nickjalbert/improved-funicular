@@ -130,6 +130,8 @@ if __name__ == "__main__":
         run_dqn()
     else:
         ray.init()
-        run_ppo()
-
-        # run_dqn()
+        tune.run(
+            "PPO",
+            stop={"timesteps_total": 1000000},
+            config={"env": Nick2048Gym, "num_workers": 3, "num_gpus": 0, "horizon": 20, "env_config": {"random_seed": 42}},
+        )

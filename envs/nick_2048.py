@@ -28,6 +28,10 @@ class Nick2048(Base2048):
 
     def __init__(self, config=None, random_seed=None):
         self.random_seed = random_seed
+        if config:
+            if "random_seed" in config:
+                assert random_seed is None
+                self.random_seed = config["random_seed"]
         self.reset()
 
     @classmethod

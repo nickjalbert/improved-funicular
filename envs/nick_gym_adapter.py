@@ -5,6 +5,10 @@ import numpy as np
 
 
 class Nick2048Gym(Nick2048):
+
+    def __init__(self, config=None, random_seed=None):
+        super().__init__(config, random_seed)
+
     def reset(self):
         new_board = super().reset()
         return np.asarray(new_board)
