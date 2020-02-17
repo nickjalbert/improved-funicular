@@ -42,7 +42,16 @@ def print_results(strategy, elapsed, step_counts, max_tiles, scores):
     )
 
 
-def do_trials(cls, trial_count, strategy, check_done_fn=None, max_steps_per_episode=500, random_seed=None, init_board=None, always_print=False):
+def do_trials(
+    cls,
+    trial_count,
+    strategy,
+    check_done_fn=None,
+    max_steps_per_episode=500,
+    random_seed=None,
+    init_board=None,
+    always_print=False,
+):
     start_time = time.time()
     scores = []
     max_tiles = []
