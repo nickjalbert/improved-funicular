@@ -47,7 +47,7 @@ Python 3.7.
 
 To automatically format your code, run:
 
-* `black [filename.py]`
+* `./scripts/black [filename.py]`
 
 To lint, run:
 
