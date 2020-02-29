@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -eu
+
+target=${1:---help}
+
+black --exclude=./improved-funicular/ --exclude=./etc/ --line-length=79 $target
