@@ -9,7 +9,7 @@ matplotlib==3.1.2
 mccabe==0.6.1
 more-itertools==8.0.2
 mlflow==1.5.0
-numpy==1.17.4
+numpy==1.22.0
 packaging==19.2
 pandas==0.25.3
 pathspec==0.6.0
